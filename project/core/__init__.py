@@ -1,1 +1,1 @@
-word = {'API': u'واجهة برمجيّة'}
+word = {'API': u'Application Programming Interface'}

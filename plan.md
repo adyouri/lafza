@@ -3,7 +3,6 @@ Term:
 
 term_id: INTEGER PRIMARY KEY
 created_date: DATETIME
-modified_date: DATETIME
 term: STRING
 translations: TRANSLATION
 
@@ -24,7 +23,6 @@ POST: /1/api/{term} <- Translation
 GET:
 {'term_id': TERM_ID,
  'created_date': CREATED_DATE,
- 'modified_date': MODIFIED_DATE,
  'term': TERM,
  'translations': [{
                     'translation_id': TRANSLATION_ID,

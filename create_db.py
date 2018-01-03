@@ -1,4 +1,4 @@
-from project.models import db, Word, Translation
+from project.models import db, Term, Translation
 from app import app
 from flask import current_app
 

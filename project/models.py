@@ -1,34 +1,39 @@
-import datetime
+from datetime import datetime
 
 from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 
-class Word(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    word = db.Column(db.String(150), unique=True, nullable=False)
-    date_created = db.Column(db.DateTime(), nullable=False)
-
-    def __init__(self, word, date_created):
-        self.word = word
-        self.date_created = datetime.datetime.utcnow()
+class Term(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    term = db.Column(db.String(150), nullable=False)
+    created_date = db.Column(db.DateTime(),
+                             default=datetime.utcnow,
+                             nullable=False,
+                             )
 
     def __repr__(self):
-        return '<Word {}>'.format(self.word)
+        return 'Term: {}'.format(self.term)
 
 
 class Translation(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    translation = db.Column(db.String(150), unique=True, nullable=False)
-    word_id = db.Column(db.Integer, db.ForeignKey('word.id'), nullable=False)
-    date_created = db.Column(db.DateTime(), nullable=False)
-    word = db.relationship('Word',
-                           backref=db.backref('translations', lazy=True)
+    id = db.Column(db.Integer(), primary_key=True)
+    translation = db.Column(db.String(150), nullable=False)
+    created_date = db.Column(db.DateTime(),
+                             default=datetime.utcnow,
+                             nullable=False,
+                             )
+    modified_date = db.Column(db.DateTime(),
+                              default=datetime.utcnow,
+                              nullable=False,
+                              )
+    score = db.Column(db.Integer(), default=1, nullable=False)
+    term_id = db.Column(db.Integer(),
+                        db.ForeignKey('term.id'),
+                        nullable=False)
+    term = db.relationship('Term',
+                           backref=db.backref('translations', lazy=True),
                            )
 
-    def __init__(self, translation, date_created):
-        self.translation = translation
-        self.date_created = datetime.datetime.utcnow()
-
     def __repr__(self):
-        return '<Translation {}>'.format(self.translitaion)
+        return 'Translation: {}'.format(self.translation)
