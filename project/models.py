@@ -6,7 +6,7 @@ db = SQLAlchemy()
 
 class Term(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
-    term = db.Column(db.String(150), nullable=False)
+    term = db.Column(db.String(150), nullable=False, unique=True)
     created_date = db.Column(db.DateTime(),
                              default=datetime.utcnow,
                              nullable=False,
@@ -20,7 +20,8 @@ class Term(db.Model):
                          } for t in self.translations
                         ]
 
-        return {"term": self.term.capitalize(),
+        return {"id": self.id,
+                "term": self.term.capitalize(),
                 "created_date": self.created_date.isoformat(),
                 "translations": translations,
                 }

@@ -19,7 +19,7 @@ Cookie | كعكة
 Curly brackets | قوسان معكوفان
 Debugger | مُنقِّح
 Debug | تنقيح
-Debug | يُنقِّح
+To Debug | يُنقِّح
 Deployment | نشر
 Documentation | وثائق، توثيق
 Dynamically-typed programming language | لغة برمجة متغيّرة الأنواع
