@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from flask_sqlalchemy import SQLAlchemy
+import project.core as core
 db = SQLAlchemy()
 
 
@@ -13,13 +14,7 @@ class Term(db.Model):
                              )
 
     def dictionary(self):
-        translations = [{"translation": t.translation,
-                         "created_date": t.created_date.isoformat(),
-                         "modified_date": t.modified_date.isoformat(),
-                         "score": t.score
-                         } for t in self.translations
-                        ]
-
+        translations = core.translations_repr(self.translations)
         return {"id": self.id,
                 "term": self.term.capitalize(),
                 "created_date": self.created_date.isoformat(),
@@ -48,6 +43,10 @@ class Translation(db.Model):
     term = db.relationship('Term',
                            backref=db.backref('translations', lazy=True),
                            )
+
+    def all_translations(self):
+        translations = self.query.all()
+        return core.translations_repr(translations)
 
     def __repr__(self):
         return 'Translation: {}'.format(self.translation)
