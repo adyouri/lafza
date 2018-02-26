@@ -13,6 +13,13 @@ translation_model = api.model('Translation', {
                               })
 
 
+@api.route('/terms/')
+class TermsAPI(Resource):
+    def get(self):
+        terms = Term.query.all()
+        return [term.dictionary() for term in terms]
+
+
 @api.route('/terms/<string:term>')
 class TermAPI(Resource):
     def get(self, term):
