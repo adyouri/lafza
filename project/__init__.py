@@ -11,6 +11,6 @@ def create_app(config_file):
     from project.views.main import main
     from project.api.v1.main import main_api
     app.register_blueprint(main)
-    app.register_blueprint(main_api, url_prefix='/api/1')
+    app.register_blueprint(main_api, url_prefix='/api/v1')
 
     return app

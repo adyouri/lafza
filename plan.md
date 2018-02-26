@@ -33,3 +33,7 @@ GET:
                  }]
 }
 
+# How it Should Work
+
+User logs in, adds term, adds translations.
+Users vote on translations.

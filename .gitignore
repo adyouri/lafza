@@ -4,3 +4,4 @@ __pycache__/
 .python-version
 utils/
 *.db
+.pytest_cache/

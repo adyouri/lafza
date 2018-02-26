@@ -13,7 +13,7 @@ translation_model = api.model('Translation', {
                               })
 
 
-@api.route('/<string:term>')
+@api.route('/terms/<string:term>')
 class TermAPI(Resource):
     def get(self, term):
         term = Term.query.filter_by(term=term.lower()).first_or_404()
