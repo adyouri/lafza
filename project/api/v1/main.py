@@ -21,7 +21,7 @@ translation_model = api.model('Translation', {
 class TermsAPI(Resource):
     def get(self):
         terms = Term.query.all()
-        return [term.dictionary() for term in terms]
+        return [core.term_repr(term) for term in terms]
 
     @api.expect(term_model)
     def post(self):
@@ -34,14 +34,14 @@ class TermsAPI(Resource):
         except IntegrityError:
             return {'Error': '{} already exists'.format(term.term),
                     'URL': api.url_for(TermAPI, term=term.term)}, 400
-        return term.dictionary(), 201
+        return core.term_repr(term), 201
 
 
 @api.route('/terms/<string:term>', endpoint='term')
 class TermAPI(Resource):
     def get(self, term):
         term = Term.query.filter_by(term=term.lower()).first_or_404()
-        return term.dictionary()
+        return core.term_repr(term)
 
 
 @api.route('/translations/', endpoint='translations')
@@ -60,4 +60,4 @@ class TranslationsAPI(Resource):
         db.session.commit()
         term = Term.query.get(new_translation.term_id)
         term.translations.append(new_translation)
-        return term.dictionary(), 201
+        return core.term_repr(term), 201

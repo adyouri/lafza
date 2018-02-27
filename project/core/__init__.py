@@ -9,3 +9,13 @@ def translations_repr(translations_list):
                      } for t in translations_list
                     ]
     return translations
+
+
+def term_repr(term):
+    ''' Takes a term instance and returns a dictionary representation'''
+    translations = translations_repr(term.translations)
+    return {'id': term.id,
+            'term': term.term.capitalize(),
+            'created_date': term.created_date.isoformat(),
+            'translations': translations,
+            }

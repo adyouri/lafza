@@ -13,14 +13,6 @@ class Term(db.Model):
                              nullable=False,
                              )
 
-    def dictionary(self):
-        translations = core.translations_repr(self.translations)
-        return {"id": self.id,
-                "term": self.term.capitalize(),
-                "created_date": self.created_date.isoformat(),
-                "translations": translations,
-                }
-
     def __repr__(self):
         return 'Term: {}'.format(self.term)
 
