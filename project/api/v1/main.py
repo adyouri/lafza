@@ -32,6 +32,7 @@ class TermsAPI(Resource):
             db.session.add(term)
             db.session.commit()
         except IntegrityError:
+            db.session.rollback()
             return {'Error': '{} already exists'.format(term.term),
                     'URL': api.url_for(TermAPI, term=term.term)}, 400
         return core.term_repr(term), 201
@@ -56,8 +57,13 @@ class TranslationsAPI(Resource):
         received_term_id = api.payload['term_id']
         new_translation = Translation(translation=received_translation,
                                       term_id=received_term_id)
-        db.session.add(new_translation)
-        db.session.commit()
         term = Term.query.get(new_translation.term_id)
-        term.translations.append(new_translation)
+        try:
+            db.session.add(new_translation)
+            db.session.commit()
+            term.translations.append(new_translation)
+        except IntegrityError:
+            db.session.rollback()
+            return {'Error': '{} already exists'.format(received_translation),
+                    'URL': api.url_for(TermAPI, term=term.term)}, 400
         return core.term_repr(term), 201

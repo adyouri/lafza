@@ -19,7 +19,7 @@ class Term(db.Model):
 
 class Translation(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
-    translation = db.Column(db.String(150), nullable=False)
+    translation = db.Column(db.String(150), nullable=False, unique=True)
     created_date = db.Column(db.DateTime(),
                              default=datetime.utcnow,
                              nullable=False,

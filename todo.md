@@ -1,5 +1,3 @@
-# Test get translations
-# Test add translation
-# Add comments and docstrings
+# Add comments and docstrings/refactor (adding translations&terms)
 # Users system
 

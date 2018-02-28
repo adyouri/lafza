@@ -48,16 +48,9 @@ class TestTerms:
         assert b'testing term' in res.data.lower()
 
     def test_term_exists(self):
-        res = self.client.get(url_for('main_api.term', term='testing term'))
-        assert res.status_code == 404
-        test_data = json.dumps(dict(term='testing term'))
-        res = self.client.post(url_for('main_api.terms'),
-                               data=test_data,
-                               content_type='application/json')
-        assert res.status_code == 201
-        res = self.client.get(url_for('main_api.term', term='testing term'))
-        assert b'testing term' in res.data.lower()
+        self.test_add_term()
         # Add the term again
+        test_data = json.dumps(dict(term='testing term'))
         res = self.client.post(url_for('main_api.terms'),
                                data=test_data,
                                content_type='application/json')
