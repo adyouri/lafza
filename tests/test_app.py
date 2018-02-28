@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 
-from flask import url_for, request
+from flask import url_for
 import pytest
 
 
@@ -40,12 +40,26 @@ class TestTerms:
         res = self.client.get(url_for('main_api.term', term='testing term'))
         assert res.status_code == 404
         test_data = json.dumps(dict(term='testing term'))
-        print(test_data)
-        # This data is not getting properly sent
         res = self.client.post(url_for('main_api.terms'),
                                data=test_data,
                                content_type='application/json')
-        print('request: ', request.get_json())
         assert res.status_code == 201
         res = self.client.get(url_for('main_api.term', term='testing term'))
         assert b'testing term' in res.data.lower()
+
+    def test_term_exists(self):
+        res = self.client.get(url_for('main_api.term', term='testing term'))
+        assert res.status_code == 404
+        test_data = json.dumps(dict(term='testing term'))
+        res = self.client.post(url_for('main_api.terms'),
+                               data=test_data,
+                               content_type='application/json')
+        assert res.status_code == 201
+        res = self.client.get(url_for('main_api.term', term='testing term'))
+        assert b'testing term' in res.data.lower()
+        # Add the term again
+        res = self.client.post(url_for('main_api.terms'),
+                               data=test_data,
+                               content_type='application/json')
+        assert res.status_code == 400
+        assert b'testing term already exists' in res.data
