@@ -56,3 +56,4 @@ class TestTerms:
                                content_type='application/json')
         assert res.status_code == 400
         assert b'testing term already exists' in res.data
+        assert b'/terms/testing%20term' in res.data

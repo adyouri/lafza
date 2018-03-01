@@ -1,3 +1,18 @@
+from project.models import Translation, db
+
+
+def translation_is_unique(translation, term):
+    existing_translations = [t.translation for t in term.translations]
+    return translation not in existing_translations
+
+
+def add_translation(translation, term):
+    new_translation = Translation(translation=translation, term_id=term.id)
+    db.session.add(new_translation)
+    term.translations.append(new_translation)
+    db.session.commit()
+
+
 def translations_repr(translations_list):
     ''' Takes a list of translations and returns a list of dictionaries
     containing information for each translation '''
@@ -19,3 +34,8 @@ def term_repr(term):
             'created_date': term.created_date.isoformat(),
             'translations': translations,
             }
+
+
+def all_translations():
+    translations = Translation.query.all()
+    return translations_repr(translations)

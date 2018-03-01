@@ -25,17 +25,16 @@ class TermsAPI(Resource):
 
     @api.expect(term_model)
     def post(self):
-        print(api.payload)
         received_term = api.payload['term']
-        term = Term(term=received_term.lower())
+        new_term = Term(term=received_term.lower())
         try:
-            db.session.add(term)
+            db.session.add(new_term)
             db.session.commit()
         except IntegrityError:
             db.session.rollback()
-            return {'Error': '{} already exists'.format(term.term),
-                    'URL': api.url_for(TermAPI, term=term.term)}, 400
-        return core.term_repr(term), 201
+            return {'Error': '{} already exists'.format(new_term.term),
+                    'URL': api.url_for(TermAPI, term=new_term.term)}, 400
+        return core.term_repr(new_term), 201
 
 
 @api.route('/terms/<string:term>', endpoint='term')
@@ -55,15 +54,13 @@ class TranslationsAPI(Resource):
     def post(self):
         received_translation = api.payload['translation']
         received_term_id = api.payload['term_id']
-        new_translation = Translation(translation=received_translation,
-                                      term_id=received_term_id)
-        term = Term.query.get(new_translation.term_id)
-        try:
-            db.session.add(new_translation)
-            db.session.commit()
-            term.translations.append(new_translation)
-        except IntegrityError:
-            db.session.rollback()
+        term = Term.query.get(received_term_id)
+        # Check if translation is unique before adding it
+        if core.translation_is_unique(translation=received_translation,
+                                      term=term):
+            core.add_translation(translation=received_translation,
+                                 term=term)
+        else:
             return {'Error': '{} already exists'.format(received_translation),
                     'URL': api.url_for(TermAPI, term=term.term)}, 400
         return core.term_repr(term), 201

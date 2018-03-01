@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from flask_sqlalchemy import SQLAlchemy
-import project.core as core
 db = SQLAlchemy()
 
 
@@ -35,10 +34,6 @@ class Translation(db.Model):
     term = db.relationship('Term',
                            backref=db.backref('translations', lazy=True),
                            )
-
-    def all_translations(self):
-        translations = self.query.all()
-        return core.translations_repr(translations)
 
     def __repr__(self):
         return 'Translation: {}'.format(self.translation)

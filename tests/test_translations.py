@@ -22,6 +22,7 @@ class TestTranslations:
         res = self.client.post(url_for('main_api.translations'),
                                data=test_data,
                                content_type='application/json')
+        print(res.data)
         assert res.status_code == 201  # Added
         res = self.client.get(url_for('main_api.term',
                               term='term'))
@@ -37,3 +38,4 @@ class TestTranslations:
                                content_type='application/json')
         assert res.status_code == 400
         assert b'testing term translation already exists' in res.data
+        assert b'/terms/term' in res.data
