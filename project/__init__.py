@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_migrate import Migrate
 
 
 def create_app(config_file):
@@ -7,6 +8,7 @@ def create_app(config_file):
 
     from project.models import db
     db.init_app(app)
+    migrate = Migrate(app, db)
 
     from project.views.main import main
     from project.api.v1.main import main_api
