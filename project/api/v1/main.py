@@ -27,13 +27,19 @@ class TermsAPI(Resource):
     def post(self):
         received_term = api.payload['term']
         new_term = Term(term=received_term.lower())
+
+        # Try adding the term
         try:
             db.session.add(new_term)
             db.session.commit()
+
+        # Term already exists in the database
         except IntegrityError:
             db.session.rollback()
             return {'Error': '{} already exists'.format(new_term.term),
                     'URL': api.url_for(TermAPI, term=new_term.term)}, 400
+
+        # Term was added
         return core.term_repr(new_term), 201
 
 
@@ -55,12 +61,17 @@ class TranslationsAPI(Resource):
         received_translation = api.payload['translation']
         received_term_id = api.payload['term_id']
         term = Term.query.get(received_term_id)
+
         # Check if translation is unique before adding it
         if core.translation_is_unique(translation=received_translation,
                                       term=term):
             core.add_translation(translation=received_translation,
                                  term=term)
+
+        # Translation is not unique
         else:
             return {'Error': '{} already exists'.format(received_translation),
                     'URL': api.url_for(TermAPI, term=term.term)}, 400
+
+        # Translation was added
         return core.term_repr(term), 201
