@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
@@ -46,17 +45,27 @@ class User(db.Model):
                          nullable=False, unique=True)
     password_hash = db.Column(db.String(128), nullable=False)
     email = db.Column(db.String(50), index=True, nullable=False, unique=True)
-    is_admin = db.Column(db.Boolean, default=False)
     created_date = db.Column(db.DateTime(),
                              default=datetime.utcnow,
                              nullable=False,
                              )
+    roles = db.Column(db.String(50))
 
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
+    @property
+    def rolenames(self):
+        return self.roles.split(',')
 
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+    @classmethod
+    def lookup(cls, username):
+        return cls.query.filter_by(username=username).one_or_none()
+
+    @classmethod
+    def identify(cls, id):
+        return cls.query.get(id)
+
+    @property
+    def identity(self):
+        return self.id
 
     def __repr__(self):
         return 'User: {}'.format(self.username)
