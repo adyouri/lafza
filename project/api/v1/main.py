@@ -3,9 +3,11 @@ from flask_restplus import Api, Resource, fields
 from sqlalchemy.exc import IntegrityError
 from project.models import Term, Translation, db
 import project.core as core
+from .users import api as users_api
 
 main_api = Blueprint('main_api', __name__)
 api = Api(main_api)
+api.add_namespace(users_api)
 
 term_model = api.model('Term', {
                        'term': fields.String,
