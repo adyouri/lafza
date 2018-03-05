@@ -43,7 +43,7 @@ class User(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     username = db.Column(db.String(50), index=True,
                          nullable=False, unique=True)
-    password_hash = db.Column(db.String(128), nullable=False)
+    password = db.Column(db.String(128), nullable=False)
     email = db.Column(db.String(50), index=True, nullable=False, unique=True)
     created_date = db.Column(db.DateTime(),
                              default=datetime.utcnow,
@@ -53,7 +53,10 @@ class User(db.Model):
 
     @property
     def rolenames(self):
-        return self.roles.split(',')
+        try:
+            return self.roles.split(',')
+        except AttributeError:
+            return []
 
     @classmethod
     def lookup(cls, username):
