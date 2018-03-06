@@ -2,7 +2,7 @@ from flask_restplus import Namespace, Resource, fields
 from sqlalchemy.exc import IntegrityError
 from project.models import User, db
 from flask import request
-from flask_praetorian import Praetorian
+from flask_praetorian import Praetorian, auth_required, current_user
 from flask_praetorian.exceptions import MissingUserError
 
 guard = Praetorian()
@@ -41,16 +41,17 @@ class RegisterAPI(Resource):
         # Username or email already exists in the database
         except IntegrityError:
             db.session.rollback()
-            return {'Error': 'Username or email already exists'}, 401
+            return {'Error': 'Username or email already exists'}, 400
 
         # User was added
         user = new_user.username
-        message = {'message': 'user {} successfully registred'.format(user)}
+        message = {'message': 'User {} successfully registred'.format(user)}
         return message, 201
 
 
 @api.route('/login', endpoint='login')
 class LoginAPI(Resource):
+
     @api.expect(login_model)
     def post(self):
         api_payload = request.get_json()
@@ -61,8 +62,13 @@ class LoginAPI(Resource):
             access_token = {'access_token': guard.encode_jwt_token(user)}
             return access_token, 200
         except MissingUserError:
-            return {'Error': 'Could not find user'}, 401
+            return {'Error': 'Wrong credintials'}, 401
 
-    # Protect this
+
+@api.route('/protected')
+class protectedAPI(Resource):
+    ''' Experimental API '''
+    decorators = [auth_required]
+
     def get(self):
-        return {'message': 'Protected'}, 200
+        return {'message': 'Welcome {}'.format(current_user().username)}, 200
