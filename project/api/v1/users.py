@@ -1,9 +1,11 @@
 from flask_restplus import Namespace, Resource, fields
 from sqlalchemy.exc import IntegrityError
-from project.models import User, db
 from flask import request
 from flask_praetorian import Praetorian, auth_required, current_user
 from flask_praetorian.exceptions import MissingUserError
+
+from project.models import User, db
+from project.core.validators import custom_fields
 
 guard = Praetorian()
 
@@ -17,13 +19,13 @@ login_model = api.model('Login', {
 register_model = api.model('Register', {
                            'username': fields.String(required=True),
                            'password': fields.String(required=True),
-                           'email': fields.String,
+                           'email': custom_fields.Email,
                            })
 
 
 @api.route('/register/', endpoint='register')
 class RegisterAPI(Resource):
-    @api.expect(register_model)
+    @api.expect(register_model, validate=True)
     def post(self):
         api_payload = request.get_json()
         username = api_payload['username']
@@ -52,7 +54,7 @@ class RegisterAPI(Resource):
 @api.route('/login', endpoint='login')
 class LoginAPI(Resource):
 
-    @api.expect(login_model)
+    @api.expect(login_model, validate=True)
     def post(self):
         api_payload = request.get_json()
         username = api_payload['username']
