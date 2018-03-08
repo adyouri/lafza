@@ -9,7 +9,7 @@ class TestUsers:
     def test_register(self):
         new_user_data = json.dumps(
                                    dict(username='tester',
-                                        password='secret',
+                                        password='12345secret',
                                         email='tester@example.com'
                                         )
                                    )
@@ -26,7 +26,7 @@ class TestUsers:
         self.test_register()
         user_data = json.dumps(
                                dict(username='tester',
-                                    password='secret'
+                                    password='12345secret'
                                     )
                                )
 
@@ -41,7 +41,7 @@ class TestUsers:
     def test_failed_login(self):
         user_data = json.dumps(
                                dict(username='no_username',
-                                    password='s3cret'
+                                    password='12345s3cret'
                                     )
                                )
         res = self.client.post(url_for('main_api.login'),

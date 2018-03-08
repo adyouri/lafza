@@ -5,21 +5,23 @@ from flask_praetorian import Praetorian, auth_required, current_user
 from flask_praetorian.exceptions import MissingUserError
 
 from project.models import User, db
-from project.core.validators import custom_fields
 
 guard = Praetorian()
 
 api = Namespace('users')
 
 login_model = api.model('Login', {
-                        'username': fields.String(required=True),
-                        'password': fields.String(required=True),
+                        'username': fields.String(required=True,
+                                                  min_length=3,
+                                                  max_length=25),
+
+                        'password': fields.String(required=True,
+                                                  min_length=8),
                         })
 
-register_model = api.model('Register', {
-                           'username': fields.String(required=True),
-                           'password': fields.String(required=True),
-                           'email': custom_fields.Email,
+register_model = api.inherit('Register', login_model, {
+                           'email': fields.String(pattern='\S+@\S+\.\S+',
+                                                  example='email@example.com')
                            })
 
 
