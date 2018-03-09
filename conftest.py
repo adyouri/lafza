@@ -25,4 +25,5 @@ def app():
     yield app
 
     # DB Teardown
+    db.session.rollback()
     db.drop_all()
