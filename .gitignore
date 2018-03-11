@@ -5,3 +5,4 @@ __pycache__/
 utils/
 *.db
 .pytest_cache/
+dev_config.cfg
