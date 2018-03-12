@@ -7,9 +7,18 @@ db = SQLAlchemy()
 class Term(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     term = db.Column(db.String(150), nullable=False, unique=True)
+    is_acronym = db.Column(db.Boolean(), default=False)
+    full_term = db.Column(db.String(150))
     created_date = db.Column(db.DateTime(),
                              default=datetime.utcnow,
                              nullable=False,
+                             )
+
+    author_id = db.Column(db.Integer(),
+                          db.ForeignKey('user.id'),
+                          )
+    author = db.relationship('User',
+                             backref=db.backref('terms', lazy=True),
                              )
 
     def __repr__(self):
@@ -34,6 +43,13 @@ class Translation(db.Model):
     term = db.relationship('Term',
                            backref=db.backref('translations', lazy=True),
                            )
+
+    author_id = db.Column(db.Integer(),
+                          db.ForeignKey('user.id'),
+                          )
+    author = db.relationship('User',
+                             backref=db.backref('translations', lazy=True),
+                             )
 
     def __repr__(self):
         return 'Translation: {}'.format(self.translation)
