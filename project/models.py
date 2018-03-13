@@ -3,6 +3,21 @@ from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
+# many-to-many relationship table | translation.tags / tag.translations
+translation_tags = db.Table(
+                   'translation_tags',
+                   db.Column('translation_id',
+                             db.Integer,
+                             db.ForeignKey('translation.id'),
+                             nullable=False),
+                   db.Column('tag_id',
+                             db.Integer,
+                             db.ForeignKey('tag.id'),
+                             nullable=False),
+
+                   db.PrimaryKeyConstraint('translation_id', 'tag_id')
+                   )
+
 
 class Term(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
@@ -50,6 +65,11 @@ class Translation(db.Model):
     author = db.relationship('User',
                              backref=db.backref('translations', lazy=True),
                              )
+    tags = db.relationship('Tag',
+                           secondary=translation_tags,
+                           backref=db.backref(
+                                              'translations',
+                                              lazy='dynamic'))
 
     def __repr__(self):
         return 'Translation: {}'.format(self.translation)
@@ -88,3 +108,11 @@ class User(db.Model):
 
     def __repr__(self):
         return 'User: {}'.format(self.username)
+
+
+class Tag(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50))
+
+    def __repr__(self):
+        return 'Tag: {}'.format(self.name)
