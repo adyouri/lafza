@@ -10,7 +10,17 @@ api = Api(main_api)
 api.add_namespace(users_api)
 
 term_model = api.model('Term', {
-                       'term': fields.String,
+                       'term': fields.String(required=True),
+                       'is_acronym': fields.Boolean(
+                           default=False,
+                           required=True
+                           ),
+
+                       'full_term': fields.String(
+                           example='Full term if is_acronym, null otherwise',
+                           default=None,
+                           required=True
+                           ),
                        })
 
 translation_model = api.model('Translation', {
@@ -28,7 +38,12 @@ class TermsAPI(Resource):
     @api.expect(term_model)
     def post(self):
         received_term = api.payload['term']
+        received_is_acronym = api.payload['is_acronym']
+        received_full_term = api.payload['full_term']
         new_term = Term(term=received_term.lower())
+        if received_is_acronym and received_full_term:
+            new_term.is_acronym = True
+            new_term.full_term = received_full_term.lower()
 
         # Try adding the term
         try:
@@ -36,7 +51,7 @@ class TermsAPI(Resource):
             db.session.commit()
 
         # Term already exists in the database
-        except IntegrityError:
+        except IntegrityError as e:
             db.session.rollback()
             return {'Error': '{} already exists'.format(new_term.term),
                     'URL': api.url_for(TermAPI, term=new_term.term)}, 400
