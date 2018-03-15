@@ -16,6 +16,10 @@ def create_app(config_file):
     from project.models import User
     guard.init_app(app, User)
 
+    # flask-marshmallow
+    from project.schemas import ma
+    ma.init_app(app)
+
     # Blueprints
     from project.views.main import main
     from project.api.v1.main import main_api
