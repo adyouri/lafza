@@ -11,7 +11,7 @@ class TestTranslations:
         res = self.client.get(url_for('main_api.translations'))
         assert res.status_code == 200
         assert b'translation' in res.data
-        assert b'created_date' in res.data
+        assert b'date_created' in res.data
 
     def test_add_translation(self):
         res = self.client.get(url_for('main_api.term',

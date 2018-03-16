@@ -18,7 +18,7 @@ def translations_repr(translations_list):
     containing information for each translation '''
     translations = [{'translation_id': t.id,
                      'translation': t.translation,
-                     'created_date': t.created_date.isoformat(),
+                     'date_created': t.date_created.isoformat(),
                      'modified_date': t.modified_date.isoformat(),
                      'score': t.score
                      } for t in translations_list
@@ -31,7 +31,7 @@ def term_repr(term):
     translations = translations_repr(term.translations)
     return {'id': term.id,
             'term': term.term.capitalize(),
-            'created_date': term.created_date.isoformat(),
+            'date_created': term.date_created.isoformat(),
             'translations': translations,
             }
 

@@ -15,7 +15,7 @@ class TestTerms:
         res = self.client.get(url_for('main_api.terms'))
         assert res.status_code == 200
         assert b'Term' in res.data
-        assert b'created_date' in res.data
+        assert b'date_created' in res.data
 
     def test_get_term(self):
         res = self.client.get(url_for('main_api.term', term='term'))
@@ -23,12 +23,12 @@ class TestTerms:
         expected_json = {
             'id': 1,
             'term': 'Term',
-            'created_date': '2018-01-01T00:00:00',
+            'date_created': '2018-01-01T00:00:00',
             'translations': [
                 {
                     'translation_id': 1,
                     'translation': 'translation',
-                    'created_date': '2018-01-01T00:00:00',
+                    'date_created': '2018-01-01T00:00:00',
                     'modified_date': '2018-01-02T00:00:00',
                     'score': 1
                 }

@@ -23,7 +23,7 @@ def upgrade():
     sa.Column('username', sa.String(length=50), nullable=False),
     sa.Column('password', sa.String(length=128), nullable=False),
     sa.Column('email', sa.String(length=50), nullable=False),
-    sa.Column('created_date', sa.DateTime(), nullable=False),
+    sa.Column('date_created', sa.DateTime(), nullable=False),
     sa.Column('roles', sa.String(length=50), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )

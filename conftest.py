@@ -13,11 +13,11 @@ def app():
     db.create_all()
     term = Term(term='term')
     translation = Translation(translation='translation')
-    test_created_date = datetime(2018, 1, 1)
+    test_date_created = datetime(2018, 1, 1)
     test_modified_date = datetime(2018, 1, 2)
-    translation.created_date = test_created_date
+    translation.date_created = test_date_created
     translation.modified_date = test_modified_date
-    term.created_date = test_created_date
+    term.date_created = test_date_created
     term.translations.append(translation)
     db.session.add(term)
     db.session.commit()

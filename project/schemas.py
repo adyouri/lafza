@@ -6,11 +6,12 @@ from flask_marshmallow import Marshmallow
 ma = Marshmallow()
 
 
-class TermSchema(ma.ModelSchema):
-    class Meta:
-        model = Term
-
-
 class TranslationSchema(ma.ModelSchema):
     class Meta:
         model = Translation
+
+
+class TermSchema(ma.ModelSchema):
+    class Meta:
+        model = Term
+    translations = ma.Nested(TranslationSchema, many=True)

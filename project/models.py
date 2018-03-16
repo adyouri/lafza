@@ -24,7 +24,7 @@ class Term(db.Model):
     term = db.Column(db.String(150), nullable=False, unique=True)
     is_acronym = db.Column(db.Boolean(), default=False)
     full_term = db.Column(db.String(150))
-    created_date = db.Column(db.DateTime(),
+    date_created = db.Column(db.DateTime(),
                              default=datetime.utcnow,
                              nullable=False,
                              )
@@ -43,7 +43,7 @@ class Term(db.Model):
 class Translation(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     translation = db.Column(db.String(150), nullable=False)
-    created_date = db.Column(db.DateTime(),
+    date_created = db.Column(db.DateTime(),
                              default=datetime.utcnow,
                              nullable=False,
                              )
@@ -81,7 +81,7 @@ class User(db.Model):
                          nullable=False, unique=True)
     password = db.Column(db.String(128), nullable=False)
     email = db.Column(db.String(50), index=True, nullable=False, unique=True)
-    created_date = db.Column(db.DateTime(),
+    date_created = db.Column(db.DateTime(),
                              default=datetime.utcnow,
                              nullable=False,
                              )

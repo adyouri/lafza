@@ -30,7 +30,7 @@ def downgrade():
     sa.Column('id', sa.INTEGER(), nullable=False),
     sa.Column('username', sa.VARCHAR(length=50), nullable=False),
     sa.Column('email', sa.VARCHAR(length=50), nullable=False),
-    sa.Column('created_date', sa.DATETIME(), nullable=False),
+    sa.Column('date_created', sa.DATETIME(), nullable=False),
     sa.Column('roles', sa.VARCHAR(length=50), nullable=True),
     sa.Column('password', sa.VARCHAR(length=128), nullable=False),
     sa.PrimaryKeyConstraint('id')

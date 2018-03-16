@@ -1,13 +1,18 @@
 from flask import Blueprint
 from flask_restplus import Api, Resource, fields
 from sqlalchemy.exc import IntegrityError
+
 from project.models import Term, Translation, db
+from project.schemas import TermSchema, TranslationSchema
 import project.core as core
 from .users import api as users_api
 
 main_api = Blueprint('main_api', __name__)
 api = Api(main_api)
 api.add_namespace(users_api)
+
+term_schema = TermSchema()
+
 
 term_model = api.model('Term', {
                        'term': fields.String(required=True),
@@ -33,7 +38,8 @@ translation_model = api.model('Translation', {
 class TermsAPI(Resource):
     def get(self):
         terms = Term.query.all()
-        return [core.term_repr(term) for term in terms]
+        return term_schema.jsonify(terms, many=True)
+        # return [core.term_repr(term) for term in terms]
 
     @api.expect(term_model)
     def post(self):
@@ -64,7 +70,8 @@ class TermsAPI(Resource):
 class TermAPI(Resource):
     def get(self, term):
         term = Term.query.filter_by(term=term.lower()).first_or_404()
-        return core.term_repr(term)
+        return term_schema.jsonify(term)
+        # return core.term_repr(term)
 
 
 @api.route('/translations/', endpoint='translations')
