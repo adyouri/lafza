@@ -6,3 +6,4 @@ utils/
 *.db
 .pytest_cache/
 dev_config.cfg
+*.db-journal
