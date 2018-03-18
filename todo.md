@@ -1,4 +1,4 @@
-# Add term_schema.loads(api.payload)
+# term_schema.load(api.payload) Does not raise a validation erorr
 # Add translation_schema.loads(api.payload)
 # Add translation tags to POST translation
 # Rewrite tests

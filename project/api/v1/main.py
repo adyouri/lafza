@@ -43,16 +43,23 @@ class TermsAPI(Resource):
 
     @api.expect(term_model)
     def post(self):
-        received_term = api.payload['term']
-        received_is_acronym = api.payload['is_acronym']
-        received_full_term = api.payload['full_term']
-        new_term = Term(term=received_term.lower())
-        if received_is_acronym and received_full_term:
-            new_term.is_acronym = True
-            new_term.full_term = received_full_term.lower()
+        #  received_term = api.payload['term']
+        #  received_is_acronym = api.payload['is_acronym']
+        #  received_full_term = api.payload['full_term']
+        #  new_term = Term(term=received_term.lower())
+        # if received_is_acronym and received_full_term:
+        #     new_term.is_acronym = True
+        #     new_term.full_term = received_full_term.lower()
+        new_term = term_schema.load(api.payload)
+
+        # Validation errors:
+        if new_term.errors:
+            return new_term.errors, 400
 
         # Try adding the term
         try:
+            new_term = new_term.data
+            new_term.term = new_term.term.lower()
             db.session.add(new_term)
             db.session.commit()
 
