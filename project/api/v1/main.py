@@ -5,6 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from project.models import Term, Translation, db
 from project.schemas import TermSchema, TranslationSchema
 import project.core as core
+import project.core.term_utils as term_utils
 from .users import api as users_api
 
 main_api = Blueprint('main_api', __name__)
@@ -43,22 +44,27 @@ class TermsAPI(Resource):
 
     @api.expect(term_model)
     def post(self):
-        #  received_term = api.payload['term']
-        #  received_is_acronym = api.payload['is_acronym']
-        #  received_full_term = api.payload['full_term']
-        #  new_term = Term(term=received_term.lower())
-        # if received_is_acronym and received_full_term:
-        #     new_term.is_acronym = True
-        #     new_term.full_term = received_full_term.lower()
         new_term = term_schema.load(api.payload)
 
-        # Validation errors:
+        # Check if there are any marshmallow errors
+        # before validating full_term/is_acronym
+        if not new_term.errors:
+            full_term_error = term_utils.\
+                              validate_full_term_is_acronym(new_term)
+        else:
+            full_term_error = False
+
+        # No errors from marshmallow, check full_term/is_acronym
+        if full_term_error:
+            new_term.errors['full_term'] = [full_term_error]
+
+        # Validation errors
         if new_term.errors:
-            return new_term.errors, 400
+            return dict(errors=new_term.errors), 400
+        new_term = new_term.data
 
         # Try adding the term
         try:
-            new_term = new_term.data
             new_term.term = new_term.term.lower()
             db.session.add(new_term)
             db.session.commit()

@@ -1,5 +1,5 @@
 # Flask-Marshmallow Schemas
-from marshmallow import post_load
+from marshmallow import post_load, validates
 from project.models import Term, Translation
 
 from flask_marshmallow import Marshmallow
