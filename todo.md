@@ -1,4 +1,3 @@
-# Test Add term
 # Test failed add term
 # Test add an acronym
 # Rewrite tests

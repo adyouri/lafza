@@ -14,26 +14,29 @@ class TestTerms:
     def test_get_terms(self):
         res = self.client.get(url_for('main_api.terms'))
         assert res.status_code == 200
-        assert b'Term' in res.data
+        assert b'term' in res.data
         assert b'date_created' in res.data
 
     def test_get_term(self):
         res = self.client.get(url_for('main_api.term', term='term'))
         res.status_code == 200
         expected_json = {
+            'author': None,
+            'date_created': '2018-01-01T00:00:00+00:00',
+            'full_term': None,
             'id': 1,
-            'term': 'Term',
-            'date_created': '2018-01-01T00:00:00',
-            'translations': [
-                {
-                    'translation_id': 1,
-                    'translation': 'translation',
-                    'date_created': '2018-01-01T00:00:00',
-                    'modified_date': '2018-01-02T00:00:00',
-                    'score': 1
-                }
-            ]
-        }
+            'is_acronym': False,
+            'term': 'term',
+            'translations': [{
+                'author': None,
+                'date_created': '2018-01-01T00:00:00+00:00',
+                'id': 1,
+                'modified_date': '2018-01-02T00:00:00+00:00',
+                'score': 1,
+                'tags': [],
+                'term': 1,
+                'translation': 'translation'}]}
+
         assert res.json == expected_json
 
     def test_add_term(self):
