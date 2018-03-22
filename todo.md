@@ -1,4 +1,4 @@
-# Test failed add term
+# Test failed add term is_acronym=True but no full_term
 # Test add an acronym
 # Rewrite tests
 # Add translation_schema.loads(api.payload)
