@@ -5,14 +5,6 @@ from flask import url_for
 import pytest
 
 
-def test_term_data(term=None, is_acronym=False, full_term=None):
-        return json.dumps(dict(
-                                term=term,
-                                is_acronym=is_acronym,
-                                full_term=full_term,
-                               ))
-
-
 @pytest.mark.usefixtures('client_class')
 class TestTerms:
     def test_homepage(self):
@@ -82,3 +74,23 @@ class TestTerms:
         assert res.status_code == 400
         assert b'testing term already exists' in res.data
         assert b'/terms/testing%20term' in res.data
+
+    # Add term using parametrization
+    @pytest.mark.parametrize('term_data, status_code, message', [
+        (('testing term', None, False), 201, 'Testing term'),
+        (('TT', 'testing term', True), 201, 'TT'),
+        (('TT', 'testing term', False), 400, 'set is_acronym to true'),
+        (('TT', None, True), 400, 'set is_acronym to false'),
+    ])
+    def test_add_term_with_params(self, term_data, status_code, message):
+        term, full_term, is_acronym = term_data
+        term_data = json.dumps(dict(
+                    term=term,
+                    is_acronym=is_acronym,
+                    full_term=full_term,
+                    ))
+        res = self.client.post(url_for('main_api.terms'),
+                               data=term_data,
+                               content_type='application/json')
+        assert res.status_code == status_code
+        assert message.encode(encoding='UTF-8') in res.data
