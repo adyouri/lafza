@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, jsonify
 from flask_restplus import Api, Resource, fields
 from sqlalchemy.exc import IntegrityError
 
@@ -76,7 +76,9 @@ class TermsAPI(Resource):
                     'URL': api.url_for(TermAPI, term=new_term.term)}, 400
 
         # Term was added
-        return core.term_repr(new_term), 201
+        result = term_schema.dump(new_term)
+        return result.data, 201
+        # return core.term_repr(new_term), 201
 
 
 @api.route('/terms/<string:term>', endpoint='term')

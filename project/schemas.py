@@ -1,5 +1,5 @@
 # Flask-Marshmallow Schemas
-from marshmallow import post_load, validates
+from marshmallow import post_load, pre_dump
 from project.models import Term, Translation
 
 from flask_marshmallow import Marshmallow
@@ -22,6 +22,14 @@ class TermSchema(ma.ModelSchema):
 
     # Validate term is not none
     # Validate full_term is not none if is_acronym
+
+    @pre_dump()
+    def make_acronym(self, data):
+        ''' Convert acronyms to uppercase '''
+        if data.is_acronym:
+            data.term = data.term.upper()
+        return data
+
     @post_load
     def make_term(self, data):
         return data

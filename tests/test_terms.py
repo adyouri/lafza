@@ -77,10 +77,12 @@ class TestTerms:
 
     # Add term using parametrization
     @pytest.mark.parametrize('term_data, status_code, message', [
-        (('testing term', None, False), 201, 'Testing term'),
+        (('testing term', None, False), 201, 'testing term'),
         (('TT', 'testing term', True), 201, 'TT'),
         (('TT', 'testing term', False), 400, 'set is_acronym to true'),
         (('TT', None, True), 400, 'set is_acronym to false'),
+        (('', '', ''), 400, 'Not a valid boolean'),
+        ((None, None, None), 400, 'Field may not be null.'),
     ])
     def test_add_term_with_params(self, term_data, status_code, message):
         term, full_term, is_acronym = term_data
