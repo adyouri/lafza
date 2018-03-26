@@ -50,20 +50,6 @@ class TestTerms:
         res = self.client.get(url_for('main_api.term', term='testing term'))
         assert b'testing term' in res.data.lower()
 
-    def test_add_full_term(self):
-        pass
-
-    def test_failed_add_term(self):
-        test_data = json.dumps(dict(
-                                term='NTT',
-                                full_term='new testing term',
-                               ))
-
-        res = self.client.post(url_for('main_api.terms'),
-                               data=test_data,
-                               content_type='application/json')
-        assert b'set is_acronym to true or full_term to null' in res.data
-
     def test_term_exists(self):
         self.test_add_term()
         # Add the term again
