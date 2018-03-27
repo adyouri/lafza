@@ -69,6 +69,9 @@ class TestTerms:
         (('TT', None, True), 400, 'set is_acronym to false'),
         (('', '', ''), 400, 'Not a valid boolean'),
         ((None, None, None), 400, 'Field may not be null.'),
+        (('T', 'testing term', True), 400, 'Shorter than minimum length'),
+        (('TT', 't', True), 400, 'Shorter than minimum length'),
+        (('T', 't', True), 400, 'Shorter than minimum length'),
     ])
     def test_add_term_with_params(self, term_data, status_code, message):
         term, full_term, is_acronym = term_data
