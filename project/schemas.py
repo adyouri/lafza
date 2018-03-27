@@ -1,5 +1,5 @@
 # Flask-Marshmallow Schemas
-from marshmallow import post_load, pre_dump
+from marshmallow import post_load, pre_dump, validate
 from project.models import Term, Translation
 
 from flask_marshmallow import Marshmallow
@@ -14,8 +14,14 @@ class TranslationSchema(ma.ModelSchema):
 
 
 class TermSchema(ma.ModelSchema):
-    term = field_for(Term, 'term', required=True)
+    term = field_for(Term, 'term',
+                     required=True,
+                     validate=validate.Length(min=2))
 
+    full_term = field_for(Term, 'full_term',
+                          validate=validate.Length(min=2))
+
+    # Flask-Marshmallow SQLAlchemy Integration
     class Meta:
         model = Term
     translations = ma.Nested(TranslationSchema, many=True)
