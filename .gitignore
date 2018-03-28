@@ -7,3 +7,5 @@ utils/
 .pytest_cache/
 dev_config.cfg
 *.db-journal
+.coverage
+htmlcov/
