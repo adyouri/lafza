@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint
 from flask_restplus import Api, Resource, fields
 from sqlalchemy.exc import IntegrityError
 
@@ -13,6 +13,7 @@ api = Api(main_api)
 api.add_namespace(users_api)
 
 term_schema = TermSchema()
+translation_schema = TranslationSchema()
 
 
 term_model = api.model('Term', {
@@ -92,8 +93,8 @@ class TermAPI(Resource):
 @api.route('/translations/', endpoint='translations')
 class TranslationsAPI(Resource):
     def get(self):
-        all_translations = Translation.query.all()
-        return core.translations_repr(all_translations)
+        translations = Translation.query.all()
+        return translation_schema.jsonify(translations, many=True)
 
     @api.expect(translation_model)
     def post(self):
