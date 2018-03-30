@@ -4,8 +4,9 @@ from sqlalchemy.exc import IntegrityError
 
 from project.models import Term, Translation, db
 from project.schemas import TermSchema, TranslationSchema
-import project.core as core
+# import project.core as core
 import project.core.term_utils as term_utils
+import project.core.translation_utils as translation_utils
 from .users import api as users_api
 
 main_api = Blueprint('main_api', __name__)
@@ -32,6 +33,7 @@ term_model = api.model('Term', {
 
 translation_model = api.model('Translation', {
                               'translation': fields.String,
+                              'tags': fields.List(fields.String),
                               'term_id': fields.Integer,
                               })
 
@@ -98,20 +100,26 @@ class TranslationsAPI(Resource):
 
     @api.expect(translation_model)
     def post(self):
-        received_translation = api.payload['translation']
-        received_term_id = api.payload['term_id']
-        term = Term.query.get(received_term_id)
-
-        # Check if translation is unique before adding it
-        if core.translation_is_unique(translation=received_translation,
-                                      term=term):
-            core.add_translation(translation=received_translation,
-                                 term=term)
-
-        # Translation is not unique
+        new_translation = translation_schema.load(api.payload)
+        # Check if there are any marshmallow errors
+        # before validating translation uniqueness
+        if not new_translation.errors:
+            translation_is_unique_error = translation_utils.\
+                              validate_translation_uniqueness(new_translation)
         else:
-            return {'Error': '{} already exists'.format(received_translation),
-                    'URL': api.url_for(TermAPI, term=term.term)}, 400
+            translation_is_unique_error = False
 
-        # Translation was added
-        return core.term_repr(term), 201
+        # No errors from marshmallow, check full_term/is_acronym
+        if translation_is_unique_error:
+            new_translation.errors['translation'] =\
+                    [translation_is_unique_error]
+
+        # Validation errors
+        if new_translation.errors:
+            return dict(errors=new_translation.errors), 400
+        # new_translation = new_translation.data
+
+        # Try adding the translation
+        # get term
+        # add translation to term.translations
+        return new_translation.errors
