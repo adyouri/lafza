@@ -1,11 +1,26 @@
 # Flask-Marshmallow Schemas
 from marshmallow import post_load, pre_dump, validate, pre_load
-from project.models import db, Term, Translation
+from project.models import db, Term, Translation, Tag
 
 from flask_marshmallow import Marshmallow
 from marshmallow_sqlalchemy import field_for
 
 ma = Marshmallow()
+
+
+def tags_to_tag_ids(tags):
+    '''A generator that takes a list of string tag names
+    and yields IDs of these tags if they exist
+    or creates new tags and returns their IDs'''
+    for tag_name in tags:
+        tag = Tag.query.filter_by(name=tag_name).one_or_none()
+        if not tag:
+            new_tag = Tag(name=tag_name)
+            db.session.add(new_tag)
+            db.session.commit()
+            yield new_tag.id
+        else:
+            yield tag.id
 
 
 class TranslationSchema(ma.ModelSchema):
