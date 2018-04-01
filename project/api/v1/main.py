@@ -122,4 +122,4 @@ class TranslationsAPI(Resource):
         # Try adding the translation
         # get term
         # add translation to term.translations
-        return new_translation.errors
+        return translation_schema.jsonify(new_translation.data)

@@ -37,7 +37,8 @@ class TranslationSchema(ma.ModelSchema):
         # tags = data['tags']
         # Query Tag() for each tag, create it if it does not exist
         # Return tag_id
-        data['tags'] = [1]
+        tag_names = data['tags']
+        data['tags'] = list(tags_to_tag_ids(tag_names))
         return data
 
 
