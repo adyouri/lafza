@@ -103,16 +103,13 @@ class TranslationsAPI(Resource):
         new_translation = translation_schema.load(api.payload)
         # Check if there are any marshmallow errors
         # before validating translation uniqueness
-        if not new_translation.errors:
-            translation_is_unique_error = translation_utils.\
-                              validate_translation_uniqueness(new_translation)
-        else:
-            translation_is_unique_error = False
-
-        # No errors from marshmallow, check full_term/is_acronym
-        if translation_is_unique_error:
-            new_translation.errors['translation'] =\
-                    [translation_is_unique_error]
+        # if not new_translation.errors:
+        #     translation_is_unique_error = translation_utils.\
+        #                       validate_translation_uniqueness(new_translation)
+        # # No errors from marshmallow, check full_term/is_acronym
+        # if translation_is_unique_error:
+        #     new_translation.errors['translation'] =\
+        #             [translation_is_unique_error]
 
         # Validation errors
         if new_translation.errors:
@@ -122,4 +119,5 @@ class TranslationsAPI(Resource):
         # Try adding the translation
         # get term
         # add translation to term.translations
-        return translation_schema.jsonify(new_translation.data)
+        db.session.commit()
+        return term_schema.jsonify(new_translation.data.term)

@@ -1,3 +1,4 @@
+import project.core.translation_utils as translation_utils
 # Flask-Marshmallow Schemas
 from marshmallow import post_load, pre_dump, validate, pre_load
 from project.models import db, Term, Translation, Tag
@@ -32,13 +33,21 @@ class TranslationSchema(ma.ModelSchema):
         model = Translation
         sqla_session = db.session
 
-    @pre_load
     def add_translation_tags(self, data):
-        # tags = data['tags']
-        # Query Tag() for each tag, create it if it does not exist
-        # Return tag_id
         tag_names = data['tags']
         data['tags'] = list(tags_to_tag_ids(tag_names))
+        return data
+
+    @pre_load
+    def load_translation(self, data):
+        translation_is_unique_error = translation_utils.\
+                              validate_translation_uniqueness(data)
+        # No errors from marshmallow, check full_term/is_acronym
+        if translation_is_unique_error:
+            data.errors['translation'] =\
+                    [translation_is_unique_error]
+            return data
+        data = self.add_translation_tags(data)
         return data
 
 
