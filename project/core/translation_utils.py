@@ -5,6 +5,8 @@ def validate_translation_uniqueness(translation):
     '''Validate that translation is unique for the term'''
     ''' Meaning that no term should have the same translation twice '''
     term = Term.query.get(translation['term_id'])
+    if not term:
+        return 'Term does not exist'
 
     # This is the actual translation string
     translation_string = translation['translation']

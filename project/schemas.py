@@ -40,13 +40,13 @@ class TranslationSchema(ma.ModelSchema):
 
     @pre_load
     def load_translation(self, data):
-        translation_is_unique_error = translation_utils.\
-                              validate_translation_uniqueness(data)
-        # No errors from marshmallow, check full_term/is_acronym
-        if translation_is_unique_error:
-            data.errors['translation'] =\
-                    [translation_is_unique_error]
-            return data
+        #translation_is_unique_error = translation_utils.\
+        #                      validate_translation_uniqueness(data)
+        ## No errors from marshmallow, check full_term/is_acronym
+        #if translation_is_unique_error:
+        #    data.errors['translation'] =\
+        #            [translation_is_unique_error]
+        #    return data
         data = self.add_translation_tags(data)
         return data
 

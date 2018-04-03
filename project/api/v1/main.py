@@ -100,18 +100,19 @@ class TranslationsAPI(Resource):
 
     @api.expect(translation_model)
     def post(self):
+        translation_is_not_unique_error = translation_utils.\
+            validate_translation_uniqueness(api.payload)
+        # TODO: validate_translation_uniqueness currently validates
+        # Both translation uniqueness and term availability
+        # They need to be split to two diffrent functions
+
         new_translation = translation_schema.load(api.payload)
+
         # Check if there are any marshmallow errors
         # before validating translation uniqueness
-        # if not new_translation.errors:
-        #     translation_is_unique_error = translation_utils.\
-        #                       validate_translation_uniqueness(new_translation)
-        # # No errors from marshmallow, check full_term/is_acronym
-        # if translation_is_unique_error:
-        #     new_translation.errors['translation'] =\
-        #             [translation_is_unique_error]
-
-        # Validation errors
+        if not new_translation.errors and translation_is_not_unique_error:
+            new_translation.errors['translation'] =\
+                    [translation_is_not_unique_error]
         if new_translation.errors:
             return dict(errors=new_translation.errors), 400
         # new_translation = new_translation.data
