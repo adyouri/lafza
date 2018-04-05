@@ -16,7 +16,7 @@ api.add_namespace(users_api)
 term_schema = TermSchema()
 translation_schema = TranslationSchema()
 
-
+''' Flask-RESTplus Models for documentation '''
 term_model = api.model('Term', {
                        'term': fields.String(required=True),
                        'is_acronym': fields.Boolean(
@@ -37,13 +37,14 @@ translation_model = api.model('Translation', {
                               'term_id': fields.Integer,
                               })
 
+''' --END-- Flask-RESTplus Models '''
+
 
 @api.route('/terms/', endpoint='terms')
 class TermsAPI(Resource):
     def get(self):
         terms = Term.query.all()
         return term_schema.jsonify(terms, many=True)
-        # return [core.term_repr(term) for term in terms]
 
     @api.expect(term_model)
     def post(self):
@@ -81,7 +82,6 @@ class TermsAPI(Resource):
         # Term was added
         result = term_schema.dump(new_term)
         return result.data, 201
-        # return core.term_repr(new_term), 201
 
 
 @api.route('/terms/<string:term>', endpoint='term')
@@ -89,7 +89,6 @@ class TermAPI(Resource):
     def get(self, term):
         term = Term.query.filter_by(term=term.lower()).first_or_404()
         return term_schema.jsonify(term)
-        # return core.term_repr(term)
 
 
 @api.route('/translations/', endpoint='translations')
@@ -101,14 +100,6 @@ class TranslationsAPI(Resource):
     @api.expect(translation_model)
     def post(self):
         term = Term.query.get(api.payload['term_id'])
-        # if term:
-        #     translation_is_not_unique_error = translation_utils.\
-        #       validate_translation_uniqueness(api.payload['translation'], term)
-
-        # TODO: validate_translation_uniqueness currently validates
-        # Both translation uniqueness and term availability
-        # They need to be split to two diffrent functions
-
         new_translation = translation_schema.load(api.payload)
         if not term:
             new_translation.errors['term_id'] = ['Term does not exist']
@@ -122,10 +113,5 @@ class TranslationsAPI(Resource):
 
         if new_translation.errors:
             return dict(errors=new_translation.errors), 400
-        # new_translation = new_translation.data
-
-        # Try adding the translation
-        # get term
-        # add translation to term.translations
         db.session.commit()
         return term_schema.jsonify(new_translation.data.term)
