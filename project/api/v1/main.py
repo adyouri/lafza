@@ -100,18 +100,31 @@ class TranslationsAPI(Resource):
     @api.expect(translation_model)
     def post(self):
         term = Term.query.get(api.payload['term_id'])
-        new_translation = translation_schema.load(api.payload)
+        term_does_not_exist = None
+        translation_already_exists = None
+
         if not term:
-            new_translation.errors['term_id'] = ['Term does not exist']
+            term_does_not_exist = True
         else:
             is_unique = translation_utils.\
                 translation_is_unique(api.payload['translation'], term)
 
             if not is_unique:
+                translation_already_exists = True
+
+        new_translation = translation_schema.load(api.payload)
+        if term_does_not_exist:
+            new_translation.errors['term_id'] = ['Term does not exist']
+
+        if translation_already_exists:
                 new_translation.errors['translation'] =\
                         ['Translation already exists']
 
         if new_translation.errors:
             return dict(errors=new_translation.errors), 400
+
+        # Commit the changes made by `translation_schema.load`
         db.session.commit()
-        return term_schema.jsonify(new_translation.data.term)
+        # Translation was successfully added, return the term.
+        result = term_schema.dump(term)
+        return result.data, 201

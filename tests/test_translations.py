@@ -22,10 +22,14 @@ class TestTranslations:
         res = self.client.post(url_for('main_api.translations'),
                                data=test_data,
                                content_type='application/json')
-        print(res.data)
+
+        import pprint; pprint.pprint(res.json)
+        assert b'testing term translation' in res.data.lower()
+
         assert res.status_code == 201  # Added
         res = self.client.get(url_for('main_api.term',
                               term='term'))
+        import pprint; pprint.pprint(res.json)
         assert b'testing term translation' in res.data.lower()
 
     def test_translation_exists(self):

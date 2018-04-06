@@ -1,4 +1,3 @@
-import project.core.translation_utils as translation_utils
 # Flask-Marshmallow Schemas
 from marshmallow import post_load, pre_dump, validate, pre_load
 from project.models import db, Term, Translation, Tag
@@ -40,14 +39,10 @@ class TranslationSchema(ma.ModelSchema):
 
     @pre_load
     def load_translation(self, data):
-        #translation_is_unique_error = translation_utils.\
-        #                      validate_translation_uniqueness(data)
-        ## No errors from marshmallow, check full_term/is_acronym
-        #if translation_is_unique_error:
-        #    data.errors['translation'] =\
-        #            [translation_is_unique_error]
-        #    return data
-        data = self.add_translation_tags(data)
+        if 'tags' in data.keys():
+            data = self.add_translation_tags(data)
+        else:
+            data['tags'] = []
         return data
 
 
@@ -70,7 +65,7 @@ class TermSchema(ma.ModelSchema):
     @pre_dump()
     def make_acronym(self, data):
         ''' Convert acronyms to uppercase '''
-        if data.is_acronym:
+        if data and data.is_acronym:
             data.term = data.term.upper()
         return data
 

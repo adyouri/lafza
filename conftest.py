@@ -10,6 +10,9 @@ def app():
     app = create_app('../testing_config.cfg')
     app.app_context().push()
     # DB Setup
+    db.session.rollback()
+    db.drop_all()
+
     db.create_all()
     term = Term(term='term')
     translation = Translation(translation='translation')
