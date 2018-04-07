@@ -35,8 +35,9 @@ class TestTerms:
                 'score': 1,
                 'tags': [],
                 'term': 1,
-                'translation': 'translation'}]}
-
+                'term_id': 1,
+                'translation': 'translation'
+            }]}
         assert res.json == expected_json
 
     def test_add_term(self):
