@@ -126,5 +126,6 @@ class TranslationsAPI(Resource):
         # Commit the changes made by `translation_schema.load`
         db.session.commit()
         # Translation was successfully added, return the term.
+        # import pdb; pdb.set_trace()
         result = term_schema.dump(term)
         return result.data, 201

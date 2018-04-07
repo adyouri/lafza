@@ -28,6 +28,10 @@ class TranslationSchema(ma.ModelSchema):
                         required=True,
                         )
 
+    # tags = field_for(Translation, 'tags',
+    #                 missing=[1]
+    #                 )
+
     class Meta:
         model = Translation
         sqla_session = db.session
@@ -43,6 +47,20 @@ class TranslationSchema(ma.ModelSchema):
             data = self.add_translation_tags(data)
         else:
             data['tags'] = []
+
+        return data
+
+    @post_load
+    def append_translation_to_term(self, data):
+        # import pdb; pdb.set_trace()
+        term = Term.query.get(data['term_id'])
+        # Term does not exist, just return the data, which contains errors
+        if not term:
+            return data
+        translation = Translation(term_id=term.id,
+                                  translation=data['translation'])
+        translation.tags = data['tags']
+        term.translations.append(translation)
         return data
 
 
