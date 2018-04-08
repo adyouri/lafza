@@ -1,4 +1,3 @@
-# parametrize translation tests
 # Test translation tags
 # Test 'Field may not be null.' for tags, translation, term_id...
 # Get term by translation tag

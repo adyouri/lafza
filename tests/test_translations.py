@@ -40,3 +40,34 @@ class TestTranslations:
                                content_type='application/json')
         assert res.status_code == 400
         assert b'Translation already exists' in res.data
+
+    # Add translation using parametrization
+    @pytest.mark.parametrize('translation,\
+            term_id,\
+            tags,\
+            status_code,\
+            message', [
+                ('testing translation', 3, None, 400, 'Term does not exist'),
+                ('testing translation', 1, [], 201, 'testing translation'),
+        ])
+    def test_parametrized_add_translation(self,
+                                          translation,
+                                          term_id,
+                                          tags,
+                                          status_code,
+                                          message):
+        '''Test adding a new translation'''
+        translation_data = json.dumps(dict(
+                                      translation=translation,
+                                      term_id=term_id,
+                                      tags=tags,
+                                      status_code=status_code,
+                                      message=message,
+                                      ))
+
+        res = self.client.post(url_for('main_api.translations'),
+                               data=translation_data,
+                               content_type='application/json')
+
+        assert res.status_code == status_code
+        assert message.encode(encoding='UTF-8') in res.data

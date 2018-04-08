@@ -43,7 +43,7 @@ class TranslationSchema(ma.ModelSchema):
 
     @pre_load
     def load_translation(self, data):
-        if 'tags' in data.keys():
+        if 'tags' in data.keys() and data['tags']:
             data = self.add_translation_tags(data)
         else:
             data['tags'] = []
