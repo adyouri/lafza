@@ -49,6 +49,12 @@ class TestTranslations:
             message', [
                 ('testing translation', 3, None, 400, 'Term does not exist'),
                 ('testing translation', 1, [], 201, 'testing translation'),
+                ('testing translation',
+                 1, ['testing_tag'], 201,
+                 '"tags": [\n                1\n            ]'),
+                ('testing translation',
+                 1, ['testing_tag', 'tag2'], 201,
+                 '[\n                1,\n                2\n            ]'),
         ])
     def test_parametrized_add_translation(self,
                                           translation,
