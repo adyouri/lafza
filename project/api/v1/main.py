@@ -2,7 +2,7 @@ from flask import Blueprint
 from flask_restplus import Api, Resource, fields
 from sqlalchemy.exc import IntegrityError
 
-from project.models import Term, Translation, db
+from project.models import Term, Translation, Tag, db
 from project.schemas import TermSchema, TranslationSchema
 # import project.core as core
 import project.core.term_utils as term_utils
@@ -89,6 +89,19 @@ class TermAPI(Resource):
     def get(self, term):
         term = Term.query.filter_by(term=term.lower()).first_or_404()
         return term_schema.jsonify(term)
+
+
+@api.route('/tags/<string:tag_name>', endpoint='tag')
+class TagAPI(Resource):
+    ''' Get terms by tranlsation tags '''
+    def get(self, tag_name):
+        # Get the tag
+        tag = Tag.query.filter_by(name=tag_name.lower()).first_or_404()
+        # Translations with the given tag
+        translations = tag.translations
+        # A list of the terms that have the translations
+        terms = [translation.term for translation in translations]
+        return term_schema.jsonify(terms, many=True)
 
 
 @api.route('/translations/', endpoint='translations')
