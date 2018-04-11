@@ -49,6 +49,7 @@ class TestTranslations:
             message', [
                 ('testing translation', 3, None, 400, 'Term does not exist'),
                 ('testing translation', 1, [], 201, 'testing translation'),
+                ('translation1', 1, ['test_tag'], 201, 'translation1'),
                 ('testing translation',
                  1, ['testing_tag'], 201,
                  '"tags": [\n                1\n            ]'),
@@ -75,5 +76,7 @@ class TestTranslations:
                                data=translation_data,
                                content_type='application/json')
 
+        import pprint; pprint.pprint(res)
+        import pprint; pprint.pprint(res.json)
         assert res.status_code == status_code
         assert message.encode(encoding='UTF-8') in res.data

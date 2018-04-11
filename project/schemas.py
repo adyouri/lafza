@@ -1,5 +1,5 @@
 # Flask-Marshmallow Schemas
-from marshmallow import post_load, pre_dump, validate, pre_load
+from marshmallow import pre_dump, validate, pre_load
 from project.models import db, Term, Translation, Tag
 
 from flask_marshmallow import Marshmallow
@@ -28,10 +28,6 @@ class TranslationSchema(ma.ModelSchema):
                         required=True,
                         )
 
-    # tags = field_for(Translation, 'tags',
-    #                 missing=[1]
-    #                 )
-
     class Meta:
         model = Translation
         sqla_session = db.session
@@ -50,19 +46,6 @@ class TranslationSchema(ma.ModelSchema):
 
         return data
 
-    @post_load
-    def append_translation_to_term(self, data):
-        # import pdb; pdb.set_trace()
-        term = Term.query.get(data['term_id'])
-        # Term does not exist, just return the data, which contains errors
-        if not term:
-            return data
-        translation = Translation(term_id=term.id,
-                                  translation=data['translation'])
-        translation.tags = data['tags']
-        term.translations.append(translation)
-        return data
-
 
 class TermSchema(ma.ModelSchema):
     term = field_for(Term, 'term',
@@ -77,16 +60,9 @@ class TermSchema(ma.ModelSchema):
         model = Term
     translations = ma.Nested(TranslationSchema, many=True)
 
-    # Validate term is not none
-    # Validate full_term is not none if is_acronym
-
     @pre_dump()
     def make_acronym(self, data):
         ''' Convert acronyms to uppercase '''
         if data and data.is_acronym:
             data.term = data.term.upper()
-        return data
-
-    @post_load
-    def make_term(self, data):
         return data
