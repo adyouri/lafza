@@ -5,11 +5,15 @@ from flask_praetorian import Praetorian, auth_required, current_user
 from flask_praetorian.exceptions import MissingUserError
 
 from project.models import User, db
+from project.schemas import UserSchema
 
 guard = Praetorian()
 
 api = Namespace('users')
 
+user_schema = UserSchema()
+
+# Flask-Restplus models
 login_model = api.model('Login', {
                         'username': fields.String(required=True,
                                                   min_length=3,
@@ -27,8 +31,24 @@ register_model = api.inherit('Register', login_model, {
 
 @api.route('/register/', endpoint='register')
 class RegisterAPI(Resource):
-    @api.expect(register_model, validate=True)
+    @api.expect(register_model)
     def post(self):
+
+        api_payload = request.get_json()
+        password = api_payload['password']
+        api_payload['password'] = guard.encrypt_password(password)
+
+        new_user = user_schema.load(api_payload)
+
+        # Check username and email are unique
+        if new_user.errors:
+            return dict(errors=new_user.errors), 400
+        # User was added
+        user = new_user.data.username
+        message = {'message': 'User {} successfully registred'.format(user)}
+        return message, 201
+
+        '''
         api_payload = request.get_json()
         username = api_payload['username']
         password = api_payload['password']
@@ -51,12 +71,13 @@ class RegisterAPI(Resource):
         user = new_user.username
         message = {'message': 'User {} successfully registred'.format(user)}
         return message, 201
+        '''
 
 
 @api.route('/login', endpoint='login')
 class LoginAPI(Resource):
 
-    @api.expect(login_model, validate=True)
+    @api.expect(login_model)
     def post(self):
         api_payload = request.get_json()
         username = api_payload['username']

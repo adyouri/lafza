@@ -1,6 +1,6 @@
-# Flask-Marshmallow Schemas
+
 from marshmallow import pre_dump, validate, pre_load
-from project.models import db, Term, Translation, Tag
+from project.models import db, Term, Translation, Tag, User
 
 from flask_marshmallow import Marshmallow
 from marshmallow_sqlalchemy import field_for
@@ -66,3 +66,8 @@ class TermSchema(ma.ModelSchema):
         if data and data.is_acronym:
             data.term = data.term.upper()
         return data
+
+
+class UserSchema(ma.ModelSchema):
+    class Meta:
+        model = User
