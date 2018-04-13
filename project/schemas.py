@@ -1,4 +1,3 @@
-
 from marshmallow import pre_dump, validate, pre_load
 from project.models import db, Term, Translation, Tag, User
 
@@ -71,3 +70,17 @@ class TermSchema(ma.ModelSchema):
 class UserSchema(ma.ModelSchema):
     class Meta:
         model = User
+
+    username = field_for(User, 'username',
+                         required=True,
+                         validate=lambda x: len(x) > 3 and len(x) < 25,
+                         )
+    password = field_for(User, 'password',
+                         required=True,
+                         validate=lambda x: len(x) > 8,
+                         )
+
+    email = field_for(User, 'email',
+                      required=False,
+                      validate=validate.Email(),
+                      )
