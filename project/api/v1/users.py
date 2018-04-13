@@ -1,11 +1,12 @@
 from flask_restplus import Namespace, Resource, fields
-from sqlalchemy.exc import IntegrityError
 from flask import request
 from flask_praetorian import Praetorian, auth_required, current_user
 from flask_praetorian.exceptions import MissingUserError
 
-from project.models import User, db
+from project.models import db
 from project.schemas import UserSchema
+
+import project.core.user_utils as user_utils
 
 guard = Praetorian()
 
@@ -33,45 +34,35 @@ register_model = api.inherit('Register', login_model, {
 class RegisterAPI(Resource):
     @api.expect(register_model)
     def post(self):
-
         api_payload = request.get_json()
         password = api_payload['password']
+        username = api_payload['username']
+        email = api_payload['email']
+
+        # Password encryption should probably be done in pre_load
         api_payload['password'] = guard.encrypt_password(password)
+
+        user_is_not_unique = None
+        if not user_utils.user_is_unique(username=username,
+                                         email=email):
+            user_is_not_unique = True
 
         new_user = user_schema.load(api_payload)
 
         # Check username and email are unique
+        if user_is_not_unique:
+            message = ['Username or email already exist']
+            new_user.errors['username'] = message
+            new_user.errors['email'] = message
+
         if new_user.errors:
             return dict(errors=new_user.errors), 400
-        # User was added
-        user = new_user.data.username
-        message = {'message': 'User {} successfully registred'.format(user)}
-        return message, 201
 
-        '''
-        api_payload = request.get_json()
-        username = api_payload['username']
-        password = api_payload['password']
-        email = api_payload['email']
-        new_user = User(username=username,
-                        password=guard.encrypt_password(password),
-                        email=email)
-
-        # Try adding user
-        try:
-            db.session.add(new_user)
-            db.session.commit()
-
-        # Username or email already exists in the database
-        except IntegrityError:
-            db.session.rollback()
-            return {'Error': 'Username or email already exists'}, 400
-
-        # User was added
-        user = new_user.username
-        message = {'message': 'User {} successfully registred'.format(user)}
-        return message, 201
-        '''
+        # Add user
+        db.session.add(new_user.data)
+        db.session.commit()
+        result = user_schema.dump(new_user)
+        return result.data, 201
 
 
 @api.route('/login', endpoint='login')
