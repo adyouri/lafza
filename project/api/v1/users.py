@@ -1,14 +1,16 @@
 from flask_restplus import Namespace, Resource, fields
 from flask import request
-from flask_praetorian import Praetorian, auth_required, current_user
+from flask_praetorian import auth_required, current_user
 from flask_praetorian.exceptions import MissingUserError
 
 from project.models import db
-from project.schemas import UserSchema
 
 import project.core.user_utils as user_utils
 
-guard = Praetorian()
+# guard = Praetorian()
+from project.auth import guard
+
+from project.schemas import UserSchema
 
 api = Namespace('users')
 
@@ -35,12 +37,12 @@ class RegisterAPI(Resource):
     @api.expect(register_model)
     def post(self):
         api_payload = request.get_json()
-        password = api_payload['password']
+        # password = api_payload['password']
         username = api_payload['username']
         email = api_payload['email']
 
         # Password encryption should probably be done in pre_load
-        api_payload['password'] = guard.encrypt_password(password)
+        # api_payload['password'] = guard.encrypt_password(password)
 
         user_is_not_unique = None
         if not user_utils.user_is_unique(username=username,
@@ -61,7 +63,7 @@ class RegisterAPI(Resource):
         # Add user
         db.session.add(new_user.data)
         db.session.commit()
-        result = user_schema.dump(new_user)
+        result = user_schema.dump(new_user.data)
         return result.data, 201
 
 

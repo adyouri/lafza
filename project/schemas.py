@@ -1,5 +1,6 @@
-from marshmallow import pre_dump, validate, pre_load
+from marshmallow import pre_dump, validate, pre_load, post_load
 from project.models import db, Term, Translation, Tag, User
+from project.auth import guard
 
 from flask_marshmallow import Marshmallow
 from marshmallow_sqlalchemy import field_for
@@ -67,6 +68,10 @@ class TermSchema(ma.ModelSchema):
         return data
 
 
+USERNAME_ERROR = 'Username must be between 3 and 25 characters'
+PASSWORD_ERROR = 'Password must be longer than 8 characters'
+
+
 class UserSchema(ma.ModelSchema):
     class Meta:
         model = User
@@ -74,13 +79,23 @@ class UserSchema(ma.ModelSchema):
     username = field_for(User, 'username',
                          required=True,
                          validate=lambda x: len(x) > 3 and len(x) < 25,
+                         error_messages={'validator_failed': USERNAME_ERROR},
                          )
+
     password = field_for(User, 'password',
                          required=True,
                          validate=lambda x: len(x) > 8,
+                         error_messages={'validator_failed': PASSWORD_ERROR},
+                         load_only=True,
                          )
 
     email = field_for(User, 'email',
                       required=False,
                       validate=validate.Email(),
                       )
+
+    @post_load
+    def encrypt_password(self, data):
+        password = data['password']
+        data['password'] = guard.encrypt_password(password)
+        return data

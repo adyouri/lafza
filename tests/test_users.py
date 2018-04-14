@@ -3,6 +3,9 @@ import json
 from flask import url_for
 import pytest
 
+USERNAME_ERROR = 'Username must be between 3 and 25 characters'
+PASSWORD_ERROR = 'Password must be longer than 8 characters'
+
 
 def register(username, password, email, client):
         new_user_data = json.dumps(
@@ -59,17 +62,17 @@ class TestUsers:
     def test_username_is_too_short(self):
         res = login('aa', '12345secret', client=self.client)
         assert res.status_code == 400
-        assert res.json['errors']['username'] == "'aa' is too short"
+        assert res.json['errors']['username'] == USERNAME_ERROR
 
     def test_password_is_too_short(self):
         res = login('username', '123', client=self.client)
         assert res.status_code == 400
-        assert res.json['errors']['password'] == "'123' is too short"
+        assert res.json['errors']['password'] == PASSWORD_ERROR
 
     def test_failed_register(self):
         res = register('aa', '123', 'invalid email', client=self.client)
         assert res.status_code == 400
-        assert res.json['errors']['username'] == "'aa' is too short"
-        assert res.json['errors']['password'] == "'123' is too short"
-        error = "'invalid email' does not match '\\\\S+@\\\\S+\\\\.\\\\S+'"
-        assert res.json['errors']['email'] == error
+        assert USERNAME_ERROR in res.json['errors']['username']
+        assert PASSWORD_ERROR in res.json['errors']['password']
+        email_error = "Not a valid email address."
+        assert email_error in res.json['errors']['email']
