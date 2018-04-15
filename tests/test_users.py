@@ -3,8 +3,7 @@ import json
 from flask import url_for
 import pytest
 
-USERNAME_ERROR = 'Username must be between 3 and 25 characters'
-PASSWORD_ERROR = 'Password must be longer than 8 characters'
+from project.schemas import USERNAME_ERROR, PASSWORD_ERROR
 
 
 def register(username, password, email, client):
