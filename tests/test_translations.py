@@ -68,8 +68,6 @@ class TestTranslations:
                                       translation=translation,
                                       term_id=term_id,
                                       tags=tags,
-                                      status_code=status_code,
-                                      message=message,
                                       ))
 
         res = self.client.post(url_for('main_api.translations'),

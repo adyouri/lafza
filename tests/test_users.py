@@ -4,6 +4,7 @@ from flask import url_for
 import pytest
 
 from project.schemas import USERNAME_ERROR, PASSWORD_ERROR
+EMAIL_ERROR = 'Not a valid email address.'
 
 
 def register(username, password, email, client):
@@ -58,20 +59,40 @@ class TestUsers:
         assert res.status_code == 401
         assert res.json['Error'] == 'Wrong credintials'
 
-    def test_username_is_too_short(self):
-        res = login('aa', '12345secret', client=self.client)
-        assert res.status_code == 400
-        assert res.json['errors']['username'] == USERNAME_ERROR
-
-    def test_password_is_too_short(self):
-        res = login('username', '123', client=self.client)
-        assert res.status_code == 400
-        assert res.json['errors']['password'] == PASSWORD_ERROR
-
     def test_failed_register(self):
         res = register('aa', '123', 'invalid email', client=self.client)
         assert res.status_code == 400
         assert USERNAME_ERROR in res.json['errors']['username']
         assert PASSWORD_ERROR in res.json['errors']['password']
-        email_error = "Not a valid email address."
+        email_error = EMAIL_ERROR
         assert email_error in res.json['errors']['email']
+
+    # Test user registration using parametrization
+    @pytest.mark.parametrize(
+        'username, email, password, status_code, message',
+        [('us', 'user@example.com', '12345678', 400, USERNAME_ERROR),
+         ('us', 'user@example.com', '123', 400, PASSWORD_ERROR),
+         ('user', 'user example.com', '12345678', 400, EMAIL_ERROR),
+         ]
+        )
+    def test_parametrized_register(self,
+                                   username,
+                                   email,
+                                   password,
+                                   status_code,
+                                   message):
+        '''Test adding a new user'''
+        new_user_data = json.dumps(dict(
+                                      username=username,
+                                      email=email,
+                                      password=password,
+                                      ))
+
+        res = self.client.post(url_for('main_api.register'),
+                               content_type='application/json',
+                               data=new_user_data
+                               )
+
+        import pprint; pprint.pprint(res.json)
+        assert res.status_code == status_code
+        assert message.encode(encoding='UTF-8') in res.data
