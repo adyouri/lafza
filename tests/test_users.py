@@ -73,6 +73,7 @@ class TestUsers:
         [('us', 'user@example.com', '12345678', 400, USERNAME_ERROR),
          ('us', 'user@example.com', '123', 400, PASSWORD_ERROR),
          ('user', 'user example.com', '12345678', 400, EMAIL_ERROR),
+         ('test_user1', 'user@example.com', '012345678', 201, 'test_user1'),
          ]
         )
     def test_parametrized_register(self,
@@ -86,13 +87,16 @@ class TestUsers:
                                       username=username,
                                       email=email,
                                       password=password,
+                                      roles='admin',
+                                      date_created='2018-01-11T15:43:00'
                                       ))
 
         res = self.client.post(url_for('main_api.register'),
                                content_type='application/json',
                                data=new_user_data
                                )
-
-        import pprint; pprint.pprint(res.json)
         assert res.status_code == status_code
         assert message.encode(encoding='UTF-8') in res.data
+        if res.status_code == 201:
+            assert res.json['date_created'] != '2018-01-11T15:43:00+00:00'
+            assert res.json['roles'] != 'admin'
