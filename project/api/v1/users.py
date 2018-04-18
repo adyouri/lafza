@@ -14,7 +14,12 @@ from project.schemas import UserSchema
 
 api = Namespace('users')
 
-user_schema = UserSchema()
+user_schema = UserSchema(
+        dump_only=('date_created',
+                   'translations',
+                   'terms',
+                   'roles')
+        )
 
 # Flask-Restplus models
 login_model = api.model('Login', {

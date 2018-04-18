@@ -13,9 +13,20 @@ main_api = Blueprint('main_api', __name__)
 api = Api(main_api)
 api.add_namespace(users_api)
 
-term_schema = TermSchema()
+term_schema = TermSchema(
+        dump_only=('date_created',
+                   'author_id',
+                   'author',
+                   'translations')
+        )
 translation_schema = TranslationSchema(
-        dump_only=('date_created', 'modified_date')
+        dump_only=('date_created',
+                   'modified_date',
+                   'score',
+                   'author_id',
+                   'author',
+                   'term',
+                   )
         )
 
 ''' Flask-RESTplus Models for documentation '''

@@ -94,22 +94,6 @@ class UserSchema(ma.ModelSchema):
                       validate=validate.Email(),
                       )
 
-    date_created = field_for(User, 'date_created',
-                             dump_only=True,
-                             )
-
-    translations = field_for(User, 'translations',
-                             dump_only=True,
-                             )
-
-    terms = field_for(User, 'terms',
-                      dump_only=True,
-                      )
-
-    roles = field_for(User, 'roles',
-                      dump_only=True,
-                      )
-
     @post_load
     def encrypt_password(self, data):
         password = data['password']
