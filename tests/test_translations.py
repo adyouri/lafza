@@ -68,6 +68,8 @@ class TestTranslations:
                                       translation=translation,
                                       term_id=term_id,
                                       tags=tags,
+                                      date_created='2018-01-11T15:43:00',
+                                      modified_date='2018-01-11T15:43:00'
                                       ))
 
         res = self.client.post(url_for('main_api.translations'),
@@ -78,3 +80,8 @@ class TestTranslations:
         import pprint; pprint.pprint(res.json)
         assert res.status_code == status_code
         assert message.encode(encoding='UTF-8') in res.data
+        if res.status_code == 201:
+            date_created = res.json['translations'][1]['date_created']
+            modified_date = res.json['translations'][1]['modified_date']
+            assert date_created != '2018-01-11T15:43:00+00:00'
+            assert modified_date != '2018-01-11T15:43:00+00:00'

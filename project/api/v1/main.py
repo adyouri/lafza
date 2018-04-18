@@ -14,7 +14,9 @@ api = Api(main_api)
 api.add_namespace(users_api)
 
 term_schema = TermSchema()
-translation_schema = TranslationSchema()
+translation_schema = TranslationSchema(
+        dump_only=('date_created', 'modified_date')
+        )
 
 ''' Flask-RESTplus Models for documentation '''
 term_model = api.model('Term', {
