@@ -57,7 +57,25 @@ class TestUsers:
     def test_failed_login(self):
         res = login('no_username', '12345secret', client=self.client)
         assert res.status_code == 401
-        assert res.json['Error'] == 'Wrong credintials'
+        assert res.json['error'] == 'Wrong credintials'
+
+    def test_login_wrong_username(self):
+        register('tester',
+                 '12345secret',
+                 'tester@example.com',
+                 client=self.client)
+        res = login('tester__', '12345secret', client=self.client)
+        assert res.status_code == 401
+        assert res.json['error'] == 'Wrong credintials'
+
+    def test_login_wrong_password(self):
+        register('tester',
+                 '12345secret',
+                 'tester@example.com',
+                 client=self.client)
+        res = login('tester', '12345secret__', client=self.client)
+        assert res.status_code == 401
+        assert res.json['error'] == 'Wrong credintials'
 
     def test_failed_register(self):
         res = register('aa', '123', 'invalid email', client=self.client)

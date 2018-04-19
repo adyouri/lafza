@@ -1,6 +1,4 @@
-# Make term and translation fields read-only
-# Test term and translation fields read-only
-# Login and login tests
+# Respond with 401 when non-logged-in user tries to access protected route
 # Protect POST term/POST translation and link to current user
 # Test add translation with user logged in
 # LogoutAPI

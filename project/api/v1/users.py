@@ -85,7 +85,7 @@ class LoginAPI(Resource):
             access_token = {'access_token': guard.encode_jwt_token(user)}
             return access_token, 200
         except MissingUserError:
-            return {'Error': 'Wrong credintials'}, 401
+            return {'error': 'Wrong credintials'}, 401
 
 
 @api.route('/protected')
