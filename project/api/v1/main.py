@@ -13,6 +13,7 @@ main_api = Blueprint('main_api', __name__)
 api = Api(main_api)
 api.add_namespace(users_api)
 
+# Marshmallow schemas
 term_schema = TermSchema(
         dump_only=('date_created',
                    'author_id',
@@ -29,7 +30,7 @@ translation_schema = TranslationSchema(
                    )
         )
 
-''' Flask-RESTplus Models for documentation '''
+# Flask-RESTplus Models for documentation
 term_model = api.model('Term', {
                        'term': fields.String(required=True),
                        'is_acronym': fields.Boolean(
@@ -50,34 +51,38 @@ translation_model = api.model('Translation', {
                               'term_id': fields.Integer,
                               })
 
-''' --END-- Flask-RESTplus Models '''
-
 
 @api.route('/terms/', endpoint='terms')
 class TermsAPI(Resource):
     def get(self):
+        ''' Get all terms '''
         terms = Term.query.all()
         return term_schema.jsonify(terms, many=True)
 
     @api.expect(term_model)
     def post(self):
+        ''' Add a new term '''
         new_term = term_schema.load(api.payload)
 
         # Check if there are any marshmallow errors
         # before validating full_term/is_acronym
         if not new_term.errors:
+            # Validate full_term/is_acronym
             full_term_error = term_utils.\
                               validate_full_term_is_acronym(new_term)
         else:
+            # There are no full_term errors
             full_term_error = False
 
-        # No errors from marshmallow, check full_term/is_acronym
+        # Add full_term/is_acronym error to the new_term errors
         if full_term_error:
             new_term.errors['full_term'] = [full_term_error]
 
-        # Validation errors
+        # Return validation errors
         if new_term.errors:
             return dict(errors=new_term.errors), 400
+
+        # No validation errors, extract the term object
         new_term = new_term.data
 
         # Try adding the term
@@ -92,7 +97,7 @@ class TermsAPI(Resource):
             return {'Error': '{} already exists'.format(new_term.term),
                     'URL': api.url_for(TermAPI, term=new_term.term)}, 400
 
-        # Term was added
+        # Term was added, convert to a dictionary and return the data
         result = term_schema.dump(new_term)
         return result.data, 201
 
@@ -100,6 +105,7 @@ class TermsAPI(Resource):
 @api.route('/terms/<string:term>', endpoint='term')
 class TermAPI(Resource):
     def get(self, term):
+        ''' Get a single term '''
         term = Term.query.filter_by(term=term.lower()).first_or_404()
         return term_schema.jsonify(term)
 
@@ -120,11 +126,13 @@ class TagAPI(Resource):
 @api.route('/translations/', endpoint='translations')
 class TranslationsAPI(Resource):
     def get(self):
+        ''' Get all translations '''
         translations = Translation.query.all()
         return translation_schema.jsonify(translations, many=True)
 
     @api.expect(translation_model)
     def post(self):
+        ''' Add a new translation '''
         term = Term.query.get(api.payload['term_id'])
         term_does_not_exist = None
         translation_already_exists = None
@@ -132,19 +140,24 @@ class TranslationsAPI(Resource):
         if not term:
             term_does_not_exist = True
         else:
+            # Term exists, check that the translation is unique
             is_unique = translation_utils.\
                 translation_is_unique(api.payload['translation'], term)
 
             if not is_unique:
+                # Translation is not unique
                 translation_already_exists = True
 
+        # Load the API payload to the translation schema
         new_translation = translation_schema.load(api.payload)
+
         if term_does_not_exist:
+            # Add term does not exist error to marshmallow errors
             new_translation.errors['term_id'] = ['Term does not exist']
 
         if translation_already_exists:
-                new_translation.errors['translation'] =\
-                        ['Translation already exists']
+            new_translation.errors['translation'] =\
+                    ['Translation already exists']
 
         if new_translation.errors:
             return dict(errors=new_translation.errors), 400
@@ -152,6 +165,7 @@ class TranslationsAPI(Resource):
         # For some reason, assigning the term to the translation is required
         new_translation.data.term = term
         # Commit the changes made by `translation_schema.load`
+        # This adds the new translation to the database
         db.session.commit()
         # Translation was successfully added, return the term.
         result = term_schema.dump(term)
