@@ -91,7 +91,7 @@ class LoginAPI(Resource):
 @api.route('/protected')
 class protectedAPI(Resource):
     ''' Experimental API '''
-    decorators = [auth_required]
+    method_decorators = [auth_required]
 
     def get(self):
         return {'message': 'Welcome {}'.format(current_user().username)}, 200
