@@ -35,6 +35,9 @@ class TranslationSchema(ma.ModelSchema):
     term_id = field_for(Translation, 'term_id',
                         required=True,
                         )
+    translation = field_for(Translation, 'translation',
+                            required=True,
+                            validate=validate.Length(min=2, max=100))
 
     class Meta:
         '''
@@ -66,10 +69,10 @@ class TranslationSchema(ma.ModelSchema):
 class TermSchema(ma.ModelSchema):
     term = field_for(Term, 'term',
                      required=True,
-                     validate=validate.Length(min=2))
+                     validate=validate.Length(min=2, max=100))
 
     full_term = field_for(Term, 'full_term',
-                          validate=validate.Length(min=2))
+                          validate=validate.Length(min=2, max=100))
 
     # Flask-Marshmallow SQLAlchemy integration
     class Meta:

@@ -4,6 +4,8 @@ import json
 from flask import url_for
 import pytest
 
+LENGTH_ERROR = 'Length must be between 2 and 100.'
+
 
 @pytest.mark.usefixtures('client_class')
 class TestTerms:
@@ -70,9 +72,10 @@ class TestTerms:
         (('TT', None, True), 400, 'set is_acronym to false'),
         (('', '', ''), 400, 'Not a valid boolean'),
         ((None, None, None), 400, 'Field may not be null.'),
-        (('T', 'testing term', True), 400, 'Shorter than minimum length'),
-        (('TT', 't', True), 400, 'Shorter than minimum length'),
-        (('T', 't', True), 400, 'Shorter than minimum length'),
+        (('T', 'testing term', True), 400, LENGTH_ERROR),
+        (('TT', 't', True), 400, LENGTH_ERROR),
+        (('T', 't', True), 400, LENGTH_ERROR),
+        (('t'*101, 't', True), 400, LENGTH_ERROR),
     ])
     def test_add_term_with_params(self, term_data, status_code, message):
         term, full_term, is_acronym = term_data
