@@ -12,6 +12,7 @@ from project.schemas import UserSchema
 
 api = Namespace('users')
 
+
 user_schema = UserSchema(
         dump_only=('date_created',
                    'translations',

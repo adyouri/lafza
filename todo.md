@@ -5,3 +5,4 @@
 # Protect POST term/POST translation and link to current user
 # Test add translation with user logged in
 # LogoutAPI
+# Follow https://www.python.org/dev/peps/pep-0257/

@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, json
 from flask_restplus import Api, Resource, fields
 from sqlalchemy.exc import IntegrityError
 
@@ -9,17 +9,45 @@ import project.core.term_utils as term_utils
 import project.core.translation_utils as translation_utils
 from .users import api as users_api
 
+from flask_praetorian.exceptions import PraetorianError
+
 main_api = Blueprint('main_api', __name__)
 api = Api(main_api)
 api.add_namespace(users_api)
+
+
+def custom_error_handler(error):
+    '''
+    Custom error handler to use with Flask-Praetorian exceptions.
+    Returns the error and the status code for Flask-RESTPlus.
+    '''
+    # Get the error in JSON format
+    error_data = error.jsonify()
+    # Get a dictionary out of the JSON formatted error
+    dictionary_error = json.loads(error_data.get_data())
+    # Return the error dictionary and the status code
+    return dictionary_error, error_data.status_code
+
+
+# Handle PraetorianError subclasses using custom_error_handler()
+# https://github.com/noirbizarre/flask-restplus/issues/421
+for subclass in PraetorianError.__subclasses__():
+    subclass_error_handler = api.errorhandler(subclass)
+    # This applies the api.errorhandler() decorator to the custom_error_handler
+    # just like:
+    # @api.errorhandler(subclass)
+    # def custom_error_handler: pass
+    subclass_error_handler(custom_error_handler)
 
 # Marshmallow schemas
 term_schema = TermSchema(
         dump_only=('date_created',
                    'author_id',
                    'author',
-                   'translations')
+                   'translations',
+                   )
         )
+
 translation_schema = TranslationSchema(
         dump_only=('date_created',
                    'modified_date',
@@ -112,8 +140,8 @@ class TermAPI(Resource):
 
 @api.route('/tags/<string:tag_name>', endpoint='tag')
 class TagAPI(Resource):
-    ''' Get terms by tranlsation tags '''
     def get(self, tag_name):
+        ''' Get terms by tranlsation tag '''
         # Get the tag
         tag = Tag.query.filter_by(name=tag_name.lower()).first_or_404()
         # Translations with the given tag
