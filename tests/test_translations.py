@@ -4,6 +4,8 @@ import json
 from flask import url_for
 import pytest
 
+from base import LENGTH_ERROR
+
 
 @pytest.mark.usefixtures('client_class')
 class TestTranslations:
@@ -47,6 +49,8 @@ class TestTranslations:
             tags,\
             status_code,\
             message', [
+                ('t', 1, None, 400, LENGTH_ERROR),
+                ('t'*101, 1, None, 400, LENGTH_ERROR),
                 ('testing translation', 3, None, 400, 'Term does not exist'),
                 ('testing translation', 1, [], 201, 'testing translation'),
                 ('translation1', 1, ['test_tag'], 201, 'translation1'),
@@ -76,8 +80,6 @@ class TestTranslations:
                                data=translation_data,
                                content_type='application/json')
 
-        import pprint; pprint.pprint(res)
-        import pprint; pprint.pprint(res.json)
         assert res.status_code == status_code
         assert message.encode(encoding='UTF-8') in res.data
         if res.status_code == 201:
