@@ -4,7 +4,8 @@ import json
 from flask import url_for
 import pytest
 
-from base import LENGTH_ERROR
+from base import length_error
+LENGTH_ERROR = length_error(2, 100)
 
 
 @pytest.mark.usefixtures('client_class')

@@ -3,8 +3,12 @@ import json
 from flask import url_for
 import pytest
 
-from project.schemas import USERNAME_ERROR, PASSWORD_ERROR
+from base import length_error
+
 EMAIL_ERROR = 'Not a valid email address.'
+PASSWORD_LENGTH_ERROR = length_error(8, 50)
+USERNAME_LENGTH_ERROR = length_error(3, 25)
+EMAIL_LENGTH_ERROR = length_error(6, 50)
 
 
 def register(username, password, email, client):
@@ -80,17 +84,20 @@ class TestUsers:
     def test_failed_register(self):
         res = register('aa', '123', 'invalid email', client=self.client)
         assert res.status_code == 400
-        assert USERNAME_ERROR in res.json['errors']['username']
-        assert PASSWORD_ERROR in res.json['errors']['password']
-        email_error = EMAIL_ERROR
-        assert email_error in res.json['errors']['email']
+        assert USERNAME_LENGTH_ERROR in res.json['errors']['username']
+        assert PASSWORD_LENGTH_ERROR in res.json['errors']['password']
+        assert EMAIL_ERROR in res.json['errors']['email']
 
     # Test user registration using parametrization
     @pytest.mark.parametrize(
         'username, email, password, status_code, message',
-        [('us', 'user@example.com', '12345678', 400, USERNAME_ERROR),
-         ('us', 'user@example.com', '123', 400, PASSWORD_ERROR),
+        [
+         ('us', 'user@example.com', '12345678', 400, USERNAME_LENGTH_ERROR),
+         ('us'*50, 'user@example.com', '12345678', 400, USERNAME_LENGTH_ERROR),
+         ('us', 'user@example.com', '123', 400, PASSWORD_LENGTH_ERROR),
+         ('us', 'user@example.com', '123'*100, 400, PASSWORD_LENGTH_ERROR),
          ('user', 'user example.com', '12345678', 400, EMAIL_ERROR),
+         ('user', f"{'u'*55}@u.c", '12345678', 400, EMAIL_LENGTH_ERROR),
          ('test_user1', 'user@example.com', '012345678', 201, 'test_user1'),
          ]
         )

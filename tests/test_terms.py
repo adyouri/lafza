@@ -4,7 +4,8 @@ import json
 from flask import url_for
 import pytest
 
-from base import LENGTH_ERROR
+from base import length_error
+LENGTH_ERROR = length_error(2, 100)
 
 
 @pytest.mark.usefixtures('client_class')
@@ -73,6 +74,7 @@ class TestTerms:
         (('', '', ''), 400, 'Not a valid boolean'),
         ((None, None, None), 400, 'Field may not be null.'),
         (('T', 'testing term', True), 400, LENGTH_ERROR),
+        (('TT', 't'*101, True), 400, LENGTH_ERROR),
         (('TT', 't', True), 400, LENGTH_ERROR),
         (('T', 't', True), 400, LENGTH_ERROR),
         (('t'*101, 't', True), 400, LENGTH_ERROR),

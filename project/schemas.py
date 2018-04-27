@@ -87,30 +87,26 @@ class TermSchema(ma.ModelSchema):
         return data
 
 
-USERNAME_ERROR = 'Username must be between 3 and 25 characters'
-PASSWORD_ERROR = 'Password must be longer than 8 characters'
-
-
 class UserSchema(ma.ModelSchema):
     class Meta:
         model = User
 
     username = field_for(User, 'username',
                          required=True,
-                         validate=lambda x: len(x) > 3 and len(x) < 25,
-                         error_messages={'validator_failed': USERNAME_ERROR},
+                         validate=validate.Length(min=3, max=25),
                          )
 
     password = field_for(User, 'password',
                          required=True,
-                         validate=lambda x: len(x) > 8,
-                         error_messages={'validator_failed': PASSWORD_ERROR},
+                         validate=validate.Length(min=8, max=50),
                          load_only=True,
                          )
 
     email = field_for(User, 'email',
                       required=False,
-                      validate=validate.Email(),
+                      validate=(validate.Length(min=6, max=50),
+                                validate.Email(),
+                                ),
                       )
 
     @post_load
