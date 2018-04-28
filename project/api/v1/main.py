@@ -10,9 +10,20 @@ import project.core.translation_utils as translation_utils
 from .users import api as users_api
 
 from flask_praetorian.exceptions import PraetorianError
+from flask_praetorian import auth_required, current_user
 
 main_api = Blueprint('main_api', __name__)
-api = Api(main_api)
+
+# Flask-RESTPlus authorization documentation
+authorizations = {
+        'apiKey': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization',
+            },
+        }
+
+api = Api(main_api, authorizations=authorizations)
 api.add_namespace(users_api)
 
 
@@ -82,6 +93,8 @@ translation_model = api.model('Translation', {
 
 @api.route('/terms/', endpoint='terms')
 class TermsAPI(Resource):
+    method_decorators = [auth_required]
+
     def get(self):
         ''' Get all terms '''
         terms = Term.query.all()
@@ -112,6 +125,9 @@ class TermsAPI(Resource):
 
         # No validation errors, extract the term object
         new_term = new_term.data
+
+        # Assign the current user as the term author
+        new_term.author = current_user()
 
         # Try adding the term
         try:

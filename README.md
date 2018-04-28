@@ -1,2 +1,6 @@
-# mofradah
-Free and open tech English-Arabic dictionary
+# Mofradah
+An open dictionary web application.
+
+---
+
+Work In Progress...
