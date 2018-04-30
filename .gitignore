@@ -6,6 +6,7 @@ utils/
 *.db
 .pytest_cache/
 dev_config.cfg
+testing_config.cfg
 *.db-journal
 .coverage
 htmlcov/

@@ -52,6 +52,7 @@ def authenticated_client(app):
             content_type='application/json',
             data=user_data,
             )
+    token = res.json['token']
     import pdb; pdb.set_trace()
     return client
 
