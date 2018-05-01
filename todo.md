@@ -1,4 +1,4 @@
-# Fix tests (maybe create a fixture that automatically sends the JWT header)
+# Fix term tests (define a valid_jwt_token() in tests/base.py)
 # Test that an unauthenticated user cannot submit a term
 # Test authorization
 # Protect POST translation
