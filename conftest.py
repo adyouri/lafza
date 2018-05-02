@@ -31,7 +31,7 @@ def app():
     # Add the translation to term translations
     term.translations.append(translation)
     # Create a new user
-    user = User(username='admin', password='12345678', email='usr@example.com')
+    user = User(username='test', password='secret', email='usr@example.com')
     # Add term and user, this also adds the translation to the session
     db.session.add(term)
     db.session.add(user)

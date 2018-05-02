@@ -5,4 +5,5 @@
 # Add user fixture for tests
 # LogoutAPI
 # Follow https://www.python.org/dev/peps/pep-0257/
-# Comment tests
+# Comment and DRY tests
+

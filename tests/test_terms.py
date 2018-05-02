@@ -4,8 +4,8 @@ import json
 from flask import url_for
 import pytest
 
-from base import length_error
-LENGTH_ERROR = length_error(2, 100)
+import base
+LENGTH_ERROR = base.length_error(2, 100)
 
 
 @pytest.mark.usefixtures('client_class')
@@ -15,7 +15,11 @@ class TestTerms:
         assert res.status_code == 200
 
     def test_get_terms(self):
-        res = self.client.get(url_for('main_api.terms'))
+        jwt_header = base.valid_jwt_token(client=self.client)
+        res = self.client.get(
+                url_for('main_api.terms'),
+                headers = {'Authorization': jwt_header},
+                )
         assert res.status_code == 200
         assert b'term' in res.data
         assert b'date_created' in res.data
@@ -44,12 +48,18 @@ class TestTerms:
         assert res.json == expected_json
 
     def test_add_term(self):
+
         res = self.client.get(url_for('main_api.term', term='testing term'))
         assert res.status_code == 404
-        test_data = json.dumps(dict(term='testing term'))
+        term_data = json.dumps(dict(term='testing term'))
+
+        jwt_header = base.valid_jwt_token(client=self.client)
         res = self.client.post(url_for('main_api.terms'),
-                               data=test_data,
-                               content_type='application/json')
+                               data=term_data,
+                               content_type='application/json',
+                               headers={'Authorization': jwt_header},
+                               )
+
         assert res.status_code == 201
         res = self.client.get(url_for('main_api.term', term='testing term'))
         assert b'testing term' in res.data.lower()
@@ -57,10 +67,13 @@ class TestTerms:
     def test_term_exists(self):
         self.test_add_term()
         # Add the term again
-        test_data = json.dumps(dict(term='testing term'))
+        term_data = json.dumps(dict(term='testing term'))
+        jwt_header = base.valid_jwt_token(client=self.client)
         res = self.client.post(url_for('main_api.terms'),
-                               data=test_data,
-                               content_type='application/json')
+                               data=term_data,
+                               content_type='application/json',
+                               headers={'Authorization': jwt_header},
+                               )
         assert res.status_code == 400
         assert b'testing term already exists' in res.data
         assert b'/terms/testing%20term' in res.data
@@ -86,8 +99,12 @@ class TestTerms:
                     is_acronym=is_acronym,
                     full_term=full_term,
                     ))
+        # Get JWT header
+        jwt_header = base.valid_jwt_token(client=self.client)
         res = self.client.post(url_for('main_api.terms'),
                                data=term_data,
-                               content_type='application/json')
+                               content_type='application/json',
+                               headers={'Authorization': jwt_header},
+                               )
         assert res.status_code == status_code
         assert message.encode(encoding='UTF-8') in res.data
