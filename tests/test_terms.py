@@ -17,9 +17,9 @@ class TestTerms:
     def test_get_terms(self):
         jwt_header = base.valid_jwt_token(client=self.client)
         res = self.client.get(
-                url_for('main_api.terms'),
-                headers = {'Authorization': jwt_header},
-                )
+                              url_for('main_api.terms'),
+                              headers={'Authorization': jwt_header},
+                              )
         assert res.status_code == 200
         assert b'term' in res.data
         assert b'date_created' in res.data
@@ -63,6 +63,18 @@ class TestTerms:
         assert res.status_code == 201
         res = self.client.get(url_for('main_api.term', term='testing term'))
         assert b'testing term' in res.data.lower()
+
+    def test_failed_add_term(self):
+        res = self.client.get(url_for('main_api.term', term='testing term'))
+        assert res.status_code == 404
+        term_data = json.dumps(dict(term='testing term'))
+
+        res = self.client.post(url_for('main_api.terms'),
+                               data=term_data,
+                               content_type='application/json',
+                               )
+
+        assert res.status_code == 401
 
     def test_term_exists(self):
         self.test_add_term()
