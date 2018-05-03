@@ -169,9 +169,12 @@ class TagAPI(Resource):
 
 @api.route('/translations/', endpoint='translations')
 class TranslationsAPI(Resource):
+    method_decorators = [auth_required]
+
     def get(self):
-        ''' Get all translations '''
-        translations = Translation.query.all()
+        ''' Get the last 10 added translations '''
+        translations = Translation.query.order_by(
+                Translation.date_created.desc()).limit(10)
         return translation_schema.jsonify(translations, many=True)
 
     @api.expect(translation_model)
