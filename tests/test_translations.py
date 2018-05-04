@@ -4,26 +4,35 @@ import json
 from flask import url_for
 import pytest
 
-from base import length_error
-LENGTH_ERROR = length_error(2, 100)
+import base
+LENGTH_ERROR = base.length_error(2, 100)
 
 
 @pytest.mark.usefixtures('client_class')
 class TestTranslations:
     def test_get_translations(self):
-        res = self.client.get(url_for('main_api.translations'))
+        jwt_header = base.valid_jwt_token(client=self.client)
+        res = self.client.get(
+                url_for('main_api.translations'),
+                headers={'Authorization': jwt_header},
+                )
         assert res.status_code == 200
         assert b'translation' in res.data
         assert b'date_created' in res.data
 
     def test_add_translation(self):
-        res = self.client.get(url_for('main_api.term',
-                              term='term'))
+        jwt_header = base.valid_jwt_token(client=self.client)
+        res = self.client.get(
+                              url_for('main_api.term', term='term'),
+                              headers={'Authorization': jwt_header},
+                              )
+
         assert b'testing term translation' not in res.data
         test_data = json.dumps(dict(translation='testing term translation',
                                     term_id=1))
         res = self.client.post(url_for('main_api.translations'),
                                data=test_data,
+                               headers={'Authorization': jwt_header},
                                content_type='application/json')
 
         assert b'testing term translation' in res.data.lower()
@@ -35,11 +44,13 @@ class TestTranslations:
 
     def test_translation_exists(self):
         self.test_add_translation()
+        jwt_header = base.valid_jwt_token(client=self.client)
         # Add the translation again
         test_data = json.dumps(dict(translation='testing term translation',
                                term_id=1))
         res = self.client.post(url_for('main_api.translations'),
                                data=test_data,
+                               headers={'Authorization': jwt_header},
                                content_type='application/json')
         assert res.status_code == 400
         assert b'Translation already exists' in res.data
@@ -77,8 +88,10 @@ class TestTranslations:
                                       modified_date='2018-01-11T15:43:00'
                                       ))
 
+        jwt_header = base.valid_jwt_token(client=self.client)
         res = self.client.post(url_for('main_api.translations'),
                                data=translation_data,
+                               headers={'Authorization': jwt_header},
                                content_type='application/json')
 
         assert res.status_code == status_code
