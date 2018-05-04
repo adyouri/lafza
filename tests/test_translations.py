@@ -20,6 +20,14 @@ class TestTranslations:
         assert b'translation' in res.data
         assert b'date_created' in res.data
 
+    def test_failed_add_translation(self):
+        test_data = json.dumps(dict(translation='testing term translation',
+                                    term_id=1))
+        res = self.client.post(url_for('main_api.translations'),
+                               data=test_data,
+                               content_type='application/json')
+        assert res.status_code == 401
+
     def test_add_translation(self):
         jwt_header = base.valid_jwt_token(client=self.client)
         res = self.client.get(
