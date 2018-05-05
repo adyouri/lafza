@@ -10,15 +10,18 @@ LENGTH_ERROR = base.length_error(2, 100)
 
 @pytest.mark.usefixtures('client_class')
 class TestTerms:
+    def jwt_header(self):
+        jwt = base.valid_jwt_token(client=self.client)
+        return jwt
+
     def test_homepage(self):
         res = self.client.get(url_for('main.index'))
         assert res.status_code == 200
 
     def test_get_terms(self):
-        jwt_header = base.valid_jwt_token(client=self.client)
         res = self.client.get(
                               url_for('main_api.terms'),
-                              headers={'Authorization': jwt_header},
+                              headers={'Authorization': self.jwt_header()},
                               )
         assert res.status_code == 200
         assert b'term' in res.data
@@ -53,11 +56,10 @@ class TestTerms:
         assert res.status_code == 404
         term_data = json.dumps(dict(term='testing term'))
 
-        jwt_header = base.valid_jwt_token(client=self.client)
         res = self.client.post(url_for('main_api.terms'),
                                data=term_data,
                                content_type='application/json',
-                               headers={'Authorization': jwt_header},
+                               headers={'Authorization': self.jwt_header()},
                                )
 
         assert res.status_code == 201
@@ -80,11 +82,10 @@ class TestTerms:
         self.test_add_term()
         # Add the term again
         term_data = json.dumps(dict(term='testing term'))
-        jwt_header = base.valid_jwt_token(client=self.client)
         res = self.client.post(url_for('main_api.terms'),
                                data=term_data,
                                content_type='application/json',
-                               headers={'Authorization': jwt_header},
+                               headers={'Authorization': self.jwt_header()},
                                )
         assert res.status_code == 400
         assert b'testing term already exists' in res.data
@@ -112,11 +113,10 @@ class TestTerms:
                     full_term=full_term,
                     ))
         # Get JWT header
-        jwt_header = base.valid_jwt_token(client=self.client)
         res = self.client.post(url_for('main_api.terms'),
                                data=term_data,
                                content_type='application/json',
-                               headers={'Authorization': jwt_header},
+                               headers={'Authorization': self.jwt_header()},
                                )
         assert res.status_code == status_code
         assert message.encode(encoding='UTF-8') in res.data
