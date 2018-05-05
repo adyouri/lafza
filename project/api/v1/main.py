@@ -211,6 +211,8 @@ class TranslationsAPI(Resource):
 
         # For some reason, assigning the term to the translation is required
         new_translation.data.term = term
+        # Assign the current user as the translation author
+        new_translation.data.author = current_user()
         # Commit the changes made by `translation_schema.load`
         # This adds the new translation to the database
         db.session.commit()
