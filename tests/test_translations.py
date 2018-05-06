@@ -105,7 +105,10 @@ class TestTranslations:
         assert res.status_code == status_code
         assert message.encode(encoding='UTF-8') in res.data
         if res.status_code == 201:
+            # Test creation and modification dates are read-only
             date_created = res.json['translations'][1]['date_created']
             modified_date = res.json['translations'][1]['modified_date']
             assert date_created != '2018-01-11T15:43:00+00:00'
             assert modified_date != '2018-01-11T15:43:00+00:00'
+            # Test translation author
+            assert res.json['translations'][1]['author'] == 1
