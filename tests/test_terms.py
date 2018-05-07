@@ -120,3 +120,6 @@ class TestTerms:
                                )
         assert res.status_code == status_code
         assert message.encode(encoding='UTF-8') in res.data
+        if res.status_code == 201:
+            # Test term author
+            assert res.json['author'] == 1
