@@ -86,6 +86,7 @@ class User(db.Model):
                              nullable=False,
                              )
     roles = db.Column(db.String(50))
+    is_active = db.Column(db.Boolean, default=True, server_default='true')
 
     @property
     def rolenames(self):
