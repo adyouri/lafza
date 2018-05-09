@@ -96,3 +96,12 @@ class protectedAPI(Resource):
 
     def get(self):
         return {'message': 'Welcome {}'.format(current_user().username)}, 200
+
+
+@api.route('/refresh')
+class refreshAPI(Resource):
+    ''' Refresh an expired JWT token '''
+    def get(self):
+        old_token = guard.read_token_from_header()
+        new_token = guard.refresh_jwt_token(old_token)
+        return {'access_token': new_token}, 200
