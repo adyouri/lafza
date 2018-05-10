@@ -89,7 +89,7 @@ class LoginAPI(Resource):
             return {'error': 'Wrong credentials.'}, 401
 
 
-@api.route('/protected')
+@api.route('/protected', endpoint='protected')
 class protectedAPI(Resource):
     ''' Experimental API '''
     method_decorators = [auth_required]

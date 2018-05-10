@@ -1,14 +1,15 @@
 import json
+import time
 
 from flask import url_for
 import pytest
 
-from base import length_error
+import base
 
 EMAIL_ERROR = 'Not a valid email address.'
-PASSWORD_LENGTH_ERROR = length_error(8, 50)
-USERNAME_LENGTH_ERROR = length_error(3, 25)
-EMAIL_LENGTH_ERROR = length_error(6, 50)
+PASSWORD_LENGTH_ERROR = base.length_error(8, 50)
+USERNAME_LENGTH_ERROR = base.length_error(3, 25)
+EMAIL_LENGTH_ERROR = base.length_error(6, 50)
 
 
 def register(username, password, email, client):
@@ -40,6 +41,10 @@ def login(username, password, client):
 
 @pytest.mark.usefixtures('client_class')
 class TestUsers:
+    def jwt_header(self):
+        jwt = base.valid_jwt_token(client=self.client)
+        return jwt
+
     def test_register(self):
         res = register('tester',
                        '12345secret',
@@ -125,3 +130,16 @@ class TestUsers:
         if res.status_code == 201:
             assert res.json['date_created'] != '2018-01-11T15:43:00+00:00'
             assert res.json['roles'] != 'admin'
+
+    @pytest.mark.parametrize('error_name, status_code, waiting_time', [
+        ('ExpiredAccessError', 401, 2),
+        ])
+    def test_jwt_token(self, error_name, status_code, waiting_time):
+        jwt_header = self.jwt_header()
+        time.sleep(waiting_time)
+        res = self.client.get(url_for('main_api.protected'),
+                              content_type='application/json',
+                              headers={'Authorization': jwt_header}
+                              )
+        assert res.status_code == status_code
+        assert res.json['error'] == error_name
