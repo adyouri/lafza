@@ -131,6 +131,25 @@ class TestUsers:
             assert res.json['date_created'] != '2018-01-11T15:43:00+00:00'
             assert res.json['roles'] != 'admin'
 
+    def test_refresh_jwt_token(self):
+        jwt_header = self.jwt_header()
+        time.sleep(3)
+        res = self.client.get(url_for('main_api.protected'),
+                              content_type='application/json',
+                              headers={'Authorization': jwt_header}
+                              )
+        assert res.status_code == 401
+        res = self.client.get(url_for('main_api.refresh'),
+                              content_type='application/json',
+                              headers={'Authorization': jwt_header}
+                              )
+        new_token = res.json['access_token']
+        res = self.client.get(url_for('main_api.protected'),
+                              content_type='application/json',
+                              headers={'Authorization': f'Bearer {new_token}'}
+                              )
+        assert res.status_code == 200
+
     @pytest.mark.parametrize('error_name, status_code, waiting_time', [
         ('ExpiredAccessError', 401, 2),
         ])

@@ -98,7 +98,7 @@ class protectedAPI(Resource):
         return {'message': 'Welcome {}'.format(current_user().username)}, 200
 
 
-@api.route('/refresh')
+@api.route('/refresh', endpoint='refresh')
 class refreshAPI(Resource):
     ''' Refresh an expired JWT token '''
     def get(self):
