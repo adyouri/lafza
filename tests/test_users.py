@@ -152,6 +152,7 @@ class TestUsers:
 
     @pytest.mark.parametrize('error_name, status_code, waiting_time', [
         ('ExpiredAccessError', 401, 2),
+        ('ExpiredRefreshError', 401, 4),
         ])
     def test_jwt_token(self, error_name, status_code, waiting_time):
         jwt_header = self.jwt_header()
@@ -160,5 +161,15 @@ class TestUsers:
                               content_type='application/json',
                               headers={'Authorization': jwt_header}
                               )
-        assert res.status_code == status_code
-        assert res.json['error'] == error_name
+        if waiting_time > 2:
+            # Waiting time exceeds refresh expiration, try to refresh
+            res = self.client.get(url_for('main_api.refresh'),
+                                  content_type='application/json',
+                                  headers={'Authorization': jwt_header}
+                                  )
+            assert res.status_code == status_code
+            assert res.json['error'] == error_name
+        else:
+            # Refreshing still works
+            assert res.status_code == status_code
+            assert res.json['error'] == error_name

@@ -1,3 +1,4 @@
-# Test ExpiredRefreshError (you can't refresh after 3 seconds)
+# Blacklist refresh tokens on /logout
+# Use Redis for blacklisting
 # Follow https://www.python.org/dev/peps/pep-0257/
 # Comment and DRY tests
