@@ -7,7 +7,7 @@ from flask_praetorian.exceptions import MissingUserError
 # Local imports
 from project.models import db
 import project.core.user_utils as user_utils
-from project.auth import guard
+from project.auth import guard, jwt_blacklist
 from project.schemas import UserSchema
 
 api = Namespace('users')
@@ -105,3 +105,17 @@ class refreshAPI(Resource):
         old_token = guard.read_token_from_header()
         new_token = guard.refresh_jwt_token(old_token)
         return {'access_token': new_token}, 200
+
+
+@api.route('/logout', endpoint='logout')
+class logoutAPI(Resource):
+    '''Logout an authenticated user by blacklisting their token'''
+    method_decorators = [auth_required]
+
+    def get(self):
+        jwt_token = guard.read_token_from_header()
+        # Extract JWT data from the token
+        data = guard.extract_jwt_token(jwt_token)
+        # Add the token's jti to the blacklist
+        jwt_blacklist.add(data['jti'])
+        return {'message': 'Successfully logged out'}, 200
