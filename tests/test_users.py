@@ -150,6 +150,30 @@ class TestUsers:
                               )
         assert res.status_code == 200
 
+    def test_logout(self):
+        jwt_header = self.jwt_header()
+        # Access a protected route
+        res = self.client.get(url_for('main_api.protected'),
+                              content_type='application/json',
+                              headers={'Authorization': jwt_header}
+                              )
+        assert res.status_code == 200
+
+        # Logout
+        res = self.client.get(url_for('main_api.logout'),
+                              content_type='application/json',
+                              headers={'Authorization': jwt_header}
+                              )
+        assert res.status_code == 200
+
+        # Try accessing the route again
+        res = self.client.get(url_for('main_api.protected'),
+                              content_type='application/json',
+                              headers={'Authorization': jwt_header}
+                              )
+
+        assert res.status_code == 403
+
     @pytest.mark.parametrize('error_name, status_code, waiting_time', [
         ('ExpiredAccessError', 401, 2),
         ('ExpiredRefreshError', 401, 4),
