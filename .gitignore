@@ -10,3 +10,4 @@ testing_config.cfg
 *.db-journal
 .coverage
 htmlcov/
+*.rdb
