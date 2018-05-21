@@ -5,9 +5,6 @@ from flask_praetorian import Praetorian
 
 guard = Praetorian()
 
-# A set for storing blacklisted JWT tokens (This should use Redis instead)
-# jwt_blacklist = set()
-
 
 class BlackList:
     """
@@ -34,6 +31,7 @@ class BlackList:
         Add a jti to the Redis blacklist
 
         Will also set it to automatically expire after the token expires
+
         :param jti: The token's JTI (which is unique for each token)
         """
         expire_time = timedelta(**current_app.config['JWT_REFRESH_LIFESPAN'])
@@ -42,11 +40,13 @@ class BlackList:
                                   expire_time,
                                   )
 
-    # def get(self, key):
-    #     """ Get a key's value from the redis server """
-    #     return self._redis_blacklist.get(key)
-
     def __contains__(self, key):
+        """
+        Override the behavior of the in operator.
+
+        Example::
+            >>> item in items # this calls items.__contains__(item)
+        """
         result = self._redis_blacklist.get(key)
         return bool(result)  # True if the key exists, False if result is None
 
@@ -56,16 +56,10 @@ jwt_blacklist = BlackList()
 
 def is_blacklisted(jti):
     """
-    check whether a JWT token is blacklisted or not.
+    Check whether a JWT token is blacklisted or not.
 
-    This is Flask-Praetorian specific (see guard.init_app() below).
+    Used by Flask-Praetorian to check whether a JWT token is still valid or not
 
     :param jti: The token's JTI (which is unique for each token)
     """
     return jti in jwt_blacklist
-
-
-# def is_blacklisted(jti):
-#     entry = jwt_blacklist.get(jti)
-#     # A blacklisted jti has the value 'blacklisted'
-#     return entry == 'blacklisted'
