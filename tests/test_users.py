@@ -1,9 +1,10 @@
 import json
 import time
 
-from flask import url_for
+from flask import url_for, current_app
 import pytest
 
+from project import auth
 import base
 
 EMAIL_ERROR = 'Not a valid email address.'
@@ -133,7 +134,7 @@ class TestUsers:
 
     def test_refresh_jwt_token(self):
         jwt_header = self.jwt_header()
-        time.sleep(3)
+        time.sleep(1.5)
         res = self.client.get(url_for('main_api.protected'),
                               content_type='application/json',
                               headers={'Authorization': jwt_header}
@@ -152,6 +153,11 @@ class TestUsers:
 
     def test_logout(self):
         jwt_header = self.jwt_header()
+        current_app.config['JWT_REFRESH_LIFESPAN'] = {'seconds': 1}
+
+        _, _, jwt_token = jwt_header.partition('Bearer ')
+        jti = auth.guard.extract_jwt_token(jwt_token)['jti']
+
         # Access a protected route
         res = self.client.get(url_for('main_api.protected'),
                               content_type='application/json',
@@ -166,6 +172,10 @@ class TestUsers:
                               )
         assert res.status_code == 200
 
+        # Check that the jwt token's jti is in the blacklist
+        assert jti in auth.jwt_blacklist
+        # import pdb; pdb.set_trace()
+
         # Try accessing the route again
         res = self.client.get(url_for('main_api.protected'),
                               content_type='application/json',
@@ -174,26 +184,28 @@ class TestUsers:
 
         assert res.status_code == 403
 
-    @pytest.mark.parametrize('error_name, status_code, waiting_time', [
-        ('ExpiredAccessError', 401, 2),
-        ('ExpiredRefreshError', 401, 4),
-        ])
-    def test_jwt_token(self, error_name, status_code, waiting_time):
+        # wait for the refresh token to expire
+        # and check that jwt is no longer in the blacklist
+        time.sleep(1)
+        assert jti not in auth.jwt_blacklist
+
+
+    def test_jwt_access_token_expiration(self):
         jwt_header = self.jwt_header()
-        time.sleep(waiting_time)
+        time.sleep(1.5)
         res = self.client.get(url_for('main_api.protected'),
                               content_type='application/json',
                               headers={'Authorization': jwt_header}
                               )
-        if waiting_time > 2:
-            # Waiting time exceeds refresh expiration, try to refresh
-            res = self.client.get(url_for('main_api.refresh'),
-                                  content_type='application/json',
-                                  headers={'Authorization': jwt_header}
-                                  )
-            assert res.status_code == status_code
-            assert res.json['error'] == error_name
-        else:
-            # Refreshing still works
-            assert res.status_code == status_code
-            assert res.json['error'] == error_name
+        assert res.status_code == 401
+        assert res.json['error'] == 'ExpiredAccessError'
+
+    def test_jwt_refresh_token_expiration(self):
+        jwt_header = self.jwt_header()
+        time.sleep(2.5)
+        res = self.client.get(url_for('main_api.refresh'),
+                              content_type='application/json',
+                              headers={'Authorization': jwt_header}
+                              )
+        assert res.status_code == 401
+        assert res.json['error'] == 'ExpiredRefreshError'
