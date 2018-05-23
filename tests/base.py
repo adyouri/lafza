@@ -1,5 +1,6 @@
+import datetime
 import json
-from flask import url_for
+from flask import url_for, current_app
 
 
 def length_error(_min, _max):
@@ -40,3 +41,13 @@ def valid_jwt_token(client):
     header = f'Bearer {token}'
 
     return header
+
+
+def after_token_expires(token_lifespan_config):
+        now = datetime.datetime.utcnow()
+        one_second = datetime.timedelta(seconds=1)
+
+        after_expiration = now + datetime.timedelta(
+                            **current_app.config[token_lifespan_config]
+                            ) + one_second
+        return after_expiration

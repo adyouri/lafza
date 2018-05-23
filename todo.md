@@ -1,4 +1,6 @@
-# Use FreezeGun to speed up tests
+# https://github.com/jamesls/fakeredis
+# Move accessing /protected to a function
+# Move accessing /refresh to a function
 # Follow https://www.python.org/dev/peps/pep-0257/
 # Comment and DRY tests
 # Update to Flask 1.0

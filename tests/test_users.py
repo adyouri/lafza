@@ -1,8 +1,9 @@
 import json
-import time
+import datetime
 
 from flask import url_for, current_app
 import pytest
+import freezegun
 
 from project import auth
 import base
@@ -134,22 +135,38 @@ class TestUsers:
 
     def test_refresh_jwt_token(self):
         jwt_header = self.jwt_header()
-        time.sleep(1.5)
-        res = self.client.get(url_for('main_api.protected'),
-                              content_type='application/json',
-                              headers={'Authorization': jwt_header}
-                              )
-        assert res.status_code == 401
-        res = self.client.get(url_for('main_api.refresh'),
-                              content_type='application/json',
-                              headers={'Authorization': jwt_header}
-                              )
-        new_token = res.json['access_token']
-        res = self.client.get(url_for('main_api.protected'),
-                              content_type='application/json',
-                              headers={'Authorization': f'Bearer {new_token}'}
-                              )
-        assert res.status_code == 200
+
+        now = datetime.datetime.utcnow()
+        with freezegun.freeze_time(now) as frozen_datetime:
+
+            res = self.client.get(url_for('main_api.protected'),
+                                  content_type='application/json',
+                                  headers={'authorization': jwt_header}
+                                  )
+            assert res.status_code == 200
+
+            # move time to after access token expires.
+            frozen_datetime.move_to(
+                base.after_token_expires('JWT_ACCESS_LIFESPAN')
+                )
+            res = self.client.get(url_for('main_api.protected'),
+                                  content_type='application/json',
+                                  headers={'Authorization': jwt_header}
+                                  )
+            assert res.status_code == 401
+
+            res = self.client.get(url_for('main_api.refresh'),
+                                  content_type='application/json',
+                                  headers={'Authorization': jwt_header}
+                                  )
+
+            new_token = res.json['access_token']
+            new_jwt_header = f'Bearer {new_token}'
+            res = self.client.get(url_for('main_api.protected'),
+                                  content_type='application/json',
+                                  headers={'Authorization': new_jwt_header}
+                                  )
+            assert res.status_code == 200
 
     def test_logout(self):
         jwt_header = self.jwt_header()
@@ -172,10 +189,6 @@ class TestUsers:
                               )
         assert res.status_code == 200
 
-        # Check that the jwt token's jti is in the blacklist
-        assert jti in auth.jwt_blacklist
-        # import pdb; pdb.set_trace()
-
         # Try accessing the route again
         res = self.client.get(url_for('main_api.protected'),
                               content_type='application/json',
@@ -184,28 +197,47 @@ class TestUsers:
 
         assert res.status_code == 403
 
-        # wait for the refresh token to expire
-        # and check that jwt is no longer in the blacklist
-        time.sleep(1)
-        assert jti not in auth.jwt_blacklist
+        now = datetime.datetime.utcnow()
+        # Make refresh token expire
+        #  and check that jwt is no longer in the blacklist
+        with freezegun.freeze_time(now) as frozen_datetime:
+            # Check that the jwt token's jti is in the blacklist
+            assert jti in auth.jwt_blacklist
 
+            frozen_datetime.move_to(
+                    base.after_token_expires('JWT_REFRESH_LIFESPAN')
+                    )
 
-    def test_jwt_access_token_expiration(self):
+            assert jti not in auth.jwt_blacklist
+
+    @pytest.mark.parametrize(
+            'token_lifespan_config, error_message',
+            [
+             ('JWT_ACCESS_LIFESPAN', 'ExpiredAccessError'),
+             ('JWT_REFRESH_LIFESPAN', 'ExpiredRefreshError'),
+             ]
+            )
+    def test_token_expiration(self, token_lifespan_config, error_message):
         jwt_header = self.jwt_header()
-        time.sleep(1.5)
-        res = self.client.get(url_for('main_api.protected'),
-                              content_type='application/json',
-                              headers={'Authorization': jwt_header}
-                              )
-        assert res.status_code == 401
-        assert res.json['error'] == 'ExpiredAccessError'
 
-    def test_jwt_refresh_token_expiration(self):
-        jwt_header = self.jwt_header()
-        time.sleep(2.5)
-        res = self.client.get(url_for('main_api.refresh'),
-                              content_type='application/json',
-                              headers={'Authorization': jwt_header}
-                              )
-        assert res.status_code == 401
-        assert res.json['error'] == 'ExpiredRefreshError'
+        now = datetime.datetime.utcnow()
+
+        with freezegun.freeze_time(now) as frozen_datetime:
+
+            res = self.client.get(url_for('main_api.protected'),
+                                  content_type='application/json',
+                                  headers={'authorization': jwt_header}
+                                  )
+            assert res.status_code == 200
+
+            # move time to after access token expires.
+            frozen_datetime.move_to(
+                base.after_token_expires(token_lifespan_config)
+                )
+
+            res = self.client.get(url_for('main_api.protected'),
+                                  content_type='application/json',
+                                  headers={'Authorization': jwt_header}
+                                  )
+            assert res.status_code == 401
+            assert res.json['error'] == 'ExpiredAccessError'
