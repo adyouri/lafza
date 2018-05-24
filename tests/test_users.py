@@ -1,4 +1,5 @@
 import json
+import time
 import datetime
 
 from flask import url_for, current_app
@@ -197,18 +198,11 @@ class TestUsers:
 
         assert res.status_code == 403
 
-        now = datetime.datetime.utcnow()
         # Make refresh token expire
         #  and check that jwt is no longer in the blacklist
-        with freezegun.freeze_time(now) as frozen_datetime:
-            # Check that the jwt token's jti is in the blacklist
-            assert jti in auth.jwt_blacklist
-
-            frozen_datetime.move_to(
-                    base.after_token_expires('JWT_REFRESH_LIFESPAN')
-                    )
-
-            assert jti not in auth.jwt_blacklist
+        assert jti in auth.jwt_blacklist
+        time.sleep(1.5)
+        assert jti not in auth.jwt_blacklist
 
     @pytest.mark.parametrize(
             'token_lifespan_config, error_message',

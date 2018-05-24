@@ -1,4 +1,3 @@
-# https://github.com/jamesls/fakeredis
 # Move accessing /protected to a function
 # Move accessing /refresh to a function
 # Follow https://www.python.org/dev/peps/pep-0257/
