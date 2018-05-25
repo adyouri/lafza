@@ -1,7 +1,6 @@
 from flask import Flask
 from flask_migrate import Migrate
 
-
 from project.auth import is_blacklisted
 
 
@@ -22,6 +21,10 @@ def create_app(config_file):
     # flask-marshmallow
     from project.schemas import ma
     ma.init_app(app)
+
+    # Flask-Limiter
+    from project.core import limit_access
+    limit_access.limiter.init_app(app)
 
     # Blueprints
     from project.views.main import main
