@@ -44,10 +44,36 @@ def valid_jwt_token(client):
 
 
 def after_token_expires(token_lifespan_config):
-        now = datetime.datetime.utcnow()
-        one_second = datetime.timedelta(seconds=1)
+    """
+    Return a datetime after the time of token expiration.
 
-        after_expiration = now + datetime.timedelta(
-                            **current_app.config[token_lifespan_config]
-                            ) + one_second
-        return after_expiration
+    :param token_lifespan_config: the configiration name for token expiration.
+
+    :return: A datetime object.
+    """
+    now = datetime.datetime.utcnow()
+    one_second = datetime.timedelta(seconds=1)
+
+    after_expiration = now + datetime.timedelta(
+                        **current_app.config[token_lifespan_config]
+                        ) + one_second
+    return after_expiration
+
+
+def request_protected_route(client, jwt_header):
+    """
+    Request the /protected route and return the response.
+
+    This is an attempt at reducing repetitive requsets in tests.
+
+    :param client: Test client.
+    :param jwt_header: JWT header to submit the request with.
+
+    :return: A response object
+    """
+    response = client.get(
+                           url_for('main_api.protected'),
+                           content_type='application/json',
+                           headers={'Authorization': jwt_header},
+                         )
+    return response
