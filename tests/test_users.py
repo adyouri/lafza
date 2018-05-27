@@ -140,20 +140,14 @@ class TestUsers:
         now = datetime.datetime.utcnow()
         with freezegun.freeze_time(now) as frozen_datetime:
 
-            res = self.client.get(url_for('main_api.protected'),
-                                  content_type='application/json',
-                                  headers={'authorization': jwt_header}
-                                  )
+            res = base.request_protected_route(self.client, jwt_header)
             assert res.status_code == 200
 
             # move time to after access token expires.
             frozen_datetime.move_to(
                 base.after_token_expires('JWT_ACCESS_LIFESPAN')
                 )
-            res = self.client.get(url_for('main_api.protected'),
-                                  content_type='application/json',
-                                  headers={'Authorization': jwt_header}
-                                  )
+            res = base.request_protected_route(self.client, jwt_header)
             assert res.status_code == 401
 
             res = self.client.get(url_for('main_api.refresh'),
@@ -163,10 +157,7 @@ class TestUsers:
 
             new_token = res.json['access_token']
             new_jwt_header = f'Bearer {new_token}'
-            res = self.client.get(url_for('main_api.protected'),
-                                  content_type='application/json',
-                                  headers={'Authorization': new_jwt_header}
-                                  )
+            res = base.request_protected_route(self.client, new_jwt_header)
             assert res.status_code == 200
 
     def test_logout(self):
@@ -177,10 +168,7 @@ class TestUsers:
         jti = auth.guard.extract_jwt_token(jwt_token)['jti']
 
         # Access a protected route
-        res = self.client.get(url_for('main_api.protected'),
-                              content_type='application/json',
-                              headers={'Authorization': jwt_header}
-                              )
+        res = base.request_protected_route(self.client, jwt_header)
         assert res.status_code == 200
 
         # Logout
@@ -191,10 +179,7 @@ class TestUsers:
         assert res.status_code == 200
 
         # Try accessing the route again
-        res = self.client.get(url_for('main_api.protected'),
-                              content_type='application/json',
-                              headers={'Authorization': jwt_header}
-                              )
+        res = base.request_protected_route(self.client, jwt_header)
 
         assert res.status_code == 403
 
@@ -218,10 +203,7 @@ class TestUsers:
 
         with freezegun.freeze_time(now) as frozen_datetime:
 
-            res = self.client.get(url_for('main_api.protected'),
-                                  content_type='application/json',
-                                  headers={'authorization': jwt_header}
-                                  )
+            res = base.request_protected_route(self.client, jwt_header)
             assert res.status_code == 200
 
             # move time to after access token expires.
@@ -229,9 +211,6 @@ class TestUsers:
                 base.after_token_expires(token_lifespan_config)
                 )
 
-            res = self.client.get(url_for('main_api.protected'),
-                                  content_type='application/json',
-                                  headers={'Authorization': jwt_header}
-                                  )
+            res = base.request_protected_route(self.client, jwt_header)
             assert res.status_code == 401
             assert res.json['error'] == 'ExpiredAccessError'
