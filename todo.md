@@ -1,8 +1,10 @@
-# Move accessing /protected to a function
+# .flaskenv does not work with pytest for some reason
 # Limit access to /register using flask-limiter
 # Test Flask-Limiter (Global and /register)
 # Use Redis as storage for Flask-Limiter
-# Move accessing /refresh to a function
 # Follow https://www.python.org/dev/peps/pep-0257/
 # Comment and DRY tests
-# Update to Flask 1.0
+# Delete terms (only admins and authors can delete terms)
+# Delete translations
+# Test delete terms
+# Test delete translations

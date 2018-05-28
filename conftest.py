@@ -4,7 +4,8 @@ import pytest
 
 from project import create_app
 from project.models import db, Term, Translation, User
-
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
 
 @pytest.fixture
 def app():

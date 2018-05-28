@@ -11,3 +11,4 @@ testing_config.cfg
 .coverage
 htmlcov/
 *.rdb
+.env

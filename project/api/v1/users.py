@@ -6,9 +6,9 @@ from flask_praetorian.exceptions import MissingUserError
 
 # Local imports
 from project.models import db
-import project.core.user_utils as user_utils
 from project.auth import guard, jwt_blacklist
 from project.schemas import UserSchema
+from project.core import user_utils, limit_access
 
 api = Namespace('users')
 
@@ -37,6 +37,8 @@ register_model = api.inherit('Register', login_model, {
 
 @api.route('/register/', endpoint='register')
 class RegisterAPI(Resource):
+    method_decorators = [limit_access.limiter.limit('5 per day')]
+
     @api.expect(register_model)
     def post(self):
         ''' Register a new user '''
