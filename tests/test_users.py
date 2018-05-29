@@ -57,6 +57,16 @@ class TestUsers:
         assert res.status_code == 201
         assert b'user admin successfully registred'
 
+    def test_register_rate_limit(self):
+
+        for i in range(6):
+            res = register('tester',
+                           '12345secret',
+                           'tester@example.com',
+                           client=self.client)
+
+        assert res.status_code == 429
+
     def test_login(self):
         register('tester',
                  '12345secret',

@@ -1,6 +1,6 @@
 # Library imports
 from flask_restplus import Namespace, Resource, fields
-from flask import request
+from flask import request, current_app
 from flask_praetorian import auth_required, current_user
 from flask_praetorian.exceptions import MissingUserError
 
@@ -37,7 +37,8 @@ register_model = api.inherit('Register', login_model, {
 
 @api.route('/register/', endpoint='register')
 class RegisterAPI(Resource):
-    method_decorators = [limit_access.limiter.limit('5 per day')]
+    # rate_limit = current_app.config.get('REGISTER_LIMIT', '5 per day')
+    decorators = [limit_access.limiter.limit('5 per day')]
 
     @api.expect(register_model)
     def post(self):
@@ -94,7 +95,7 @@ class LoginAPI(Resource):
 @api.route('/protected', endpoint='protected')
 class protectedAPI(Resource):
     ''' Experimental API '''
-    method_decorators = [auth_required]
+    decorators = [auth_required]
 
     def get(self):
         return {'message': 'Welcome {}'.format(current_user().username)}, 200
@@ -112,7 +113,7 @@ class refreshAPI(Resource):
 @api.route('/logout', endpoint='logout')
 class logoutAPI(Resource):
     '''Logout an authenticated user by blacklisting their token'''
-    method_decorators = [auth_required]
+    decorators = [auth_required]
 
     def get(self):
         jwt_token = guard.read_token_from_header()
