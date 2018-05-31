@@ -1,5 +1,5 @@
 def validate_full_term_is_acronym(data):
-    ''' Validate full term exists if is_acronym and is_acronym is not False '''
+    """ Validate full term exists if is_acronym and is_acronym is not False """
     full_term = data.data.full_term
     is_acronym = data.data.is_acronym
 

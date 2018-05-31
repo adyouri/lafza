@@ -88,7 +88,7 @@ class TestTranslations:
                                           tags,
                                           status_code,
                                           message):
-        '''Test adding a new translation'''
+        """Test adding a new translation"""
         translation_data = json.dumps(dict(
                                       translation=translation,
                                       term_id=term_id,

@@ -125,7 +125,7 @@ class TestUsers:
                                    password,
                                    status_code,
                                    message):
-        '''Test adding a new user'''
+        """Test adding a new user"""
         new_user_data = json.dumps(dict(
                                       username=username,
                                       email=email,

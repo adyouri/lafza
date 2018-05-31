@@ -42,7 +42,7 @@ class RegisterAPI(Resource):
 
     @api.expect(register_model)
     def post(self):
-        ''' Register a new user '''
+        """ Register a new user """
         api_payload = request.get_json()
         username = api_payload['username']
         email = api_payload['email']
@@ -77,7 +77,7 @@ class RegisterAPI(Resource):
 class LoginAPI(Resource):
     @api.expect(login_model)
     def post(self):
-        ''' User login route '''
+        """ User login route """
         api_payload = request.get_json()
         # Get the username and password
         username = api_payload['username']
@@ -94,7 +94,7 @@ class LoginAPI(Resource):
 
 @api.route('/protected', endpoint='protected')
 class protectedAPI(Resource):
-    ''' Experimental API '''
+    """ Experimental API """
     decorators = [auth_required]
 
     def get(self):
@@ -103,7 +103,7 @@ class protectedAPI(Resource):
 
 @api.route('/refresh', endpoint='refresh')
 class refreshAPI(Resource):
-    ''' Refresh an expired JWT token '''
+    """ Refresh an expired JWT token """
     def get(self):
         old_token = guard.read_token_from_header()
         new_token = guard.refresh_jwt_token(old_token)
@@ -112,7 +112,7 @@ class refreshAPI(Resource):
 
 @api.route('/logout', endpoint='logout')
 class logoutAPI(Resource):
-    '''Logout an authenticated user by blacklisting their token'''
+    """Logout an authenticated user by blacklisting their token"""
     decorators = [auth_required]
 
     def get(self):

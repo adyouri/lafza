@@ -28,10 +28,10 @@ api.add_namespace(users_api)
 
 
 def custom_error_handler(error):
-    '''
+    """
     Custom error handler to use with Flask-Praetorian exceptions.
     Returns the error and the status code for Flask-RESTPlus.
-    '''
+    """
     # Get the error in JSON format
     error_data = error.jsonify()
     # Get a dictionary out of the JSON formatted error
@@ -96,13 +96,13 @@ class TermsAPI(Resource):
     method_decorators = [auth_required]
 
     def get(self):
-        ''' Get all terms '''
+        """ Get all terms """
         terms = Term.query.all()
         return term_schema.jsonify(terms, many=True)
 
     @api.expect(term_model)
     def post(self):
-        ''' Add a new term '''
+        """ Add a new term """
         new_term = term_schema.load(api.payload)
 
         # Check if there are any marshmallow errors
@@ -149,7 +149,7 @@ class TermsAPI(Resource):
 @api.route('/terms/<string:term>', endpoint='term')
 class TermAPI(Resource):
     def get(self, term):
-        ''' Get a single term '''
+        """ Get a single term """
         term = Term.query.filter_by(term=term.lower()).first_or_404()
         return term_schema.jsonify(term)
 
@@ -157,7 +157,7 @@ class TermAPI(Resource):
 @api.route('/tags/<string:tag_name>', endpoint='tag')
 class TagAPI(Resource):
     def get(self, tag_name):
-        ''' Get terms by tranlsation tag '''
+        """ Get terms by tranlsation tag """
         # Get the tag
         tag = Tag.query.filter_by(name=tag_name.lower()).first_or_404()
         # Translations with the given tag
@@ -172,14 +172,14 @@ class TranslationsAPI(Resource):
     method_decorators = [auth_required]
 
     def get(self):
-        ''' Get the last 10 added translations '''
+        """ Get the last 10 added translations """
         translations = Translation.query.order_by(
                 Translation.date_created.desc()).limit(10)
         return translation_schema.jsonify(translations, many=True)
 
     @api.expect(translation_model)
     def post(self):
-        ''' Add a new translation '''
+        """ Add a new translation """
         term = Term.query.get(api.payload['term_id'])
         term_does_not_exist = None
         translation_already_exists = None
