@@ -153,6 +153,13 @@ class TermAPI(Resource):
         term = Term.query.filter_by(term=term.lower()).first_or_404()
         return term_schema.jsonify(term)
 
+    def delete(self, term):
+        """ Delete a term """
+        term = Term.query.filter_by(term=term.lower()).first_or_404()
+        db.session.delete(term)
+        db.session.commit()
+        return {'message': 'The term was successfully deleted.'}
+
 
 @api.route('/tags/<string:tag_name>', endpoint='tag')
 class TagAPI(Resource):

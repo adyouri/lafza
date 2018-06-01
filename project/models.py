@@ -56,7 +56,10 @@ class Translation(db.Model):
                         db.ForeignKey('term.id'),
                         nullable=False)
     term = db.relationship('Term',
-                           backref=db.backref('translations', lazy=True),
+                           backref=db.backref(
+                               'translations',
+                               cascade='all, delete-orphan',
+                               lazy=True),
                            )
 
     author_id = db.Column(db.Integer(),
