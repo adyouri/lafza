@@ -153,6 +153,11 @@ class TermAPI(Resource):
         term = Term.query.filter_by(term=term.lower()).first_or_404()
         return term_schema.jsonify(term)
 
+
+@api.route('/terms/<string:term>', endpoint='delete_term')
+class DeleteTermAPI(Resource):
+    method_decorators = [auth_required('admin')]
+
     def delete(self, term):
         """ Delete a term """
         term = Term.query.filter_by(term=term.lower()).first_or_404()
