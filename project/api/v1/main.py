@@ -10,7 +10,7 @@ import project.core.translation_utils as translation_utils
 from .users import api as users_api
 
 from flask_praetorian.exceptions import PraetorianError
-from flask_praetorian import auth_required, current_user
+from flask_praetorian import auth_required, current_user, roles_required
 
 main_api = Blueprint('main_api', __name__)
 
@@ -156,7 +156,7 @@ class TermAPI(Resource):
 
 @api.route('/terms/<string:term>', endpoint='delete_term')
 class DeleteTermAPI(Resource):
-    method_decorators = [auth_required('admin')]
+    decorators = [auth_required, roles_required('admin')]
 
     def delete(self, term):
         """ Delete a term """
