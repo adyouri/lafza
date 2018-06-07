@@ -166,6 +166,19 @@ class DeleteTermAPI(Resource):
         return {'message': 'The term was successfully deleted.'}
 
 
+@api.route('/translations/<int:translation_id>',
+           endpoint='delete_translation')
+class DeleteTranslationAPI(Resource):
+    decorators = [auth_required]
+
+    def delete(self, translation_id):
+        """ Delete a translation """
+        translation = Translation.query.get(translation_id)
+        db.session.delete(translation)
+        db.session.commit()
+        return {'message': 'The translation was successfully deleted.'}
+
+
 @api.route('/tags/<string:tag_name>', endpoint='tag')
 class TagAPI(Resource):
     def get(self, tag_name):
