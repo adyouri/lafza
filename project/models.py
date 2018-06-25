@@ -35,6 +35,24 @@ translation_upvoters = db.Table(
                    db.PrimaryKeyConstraint('translation_id', 'user_id')
                    )
 
+# Each translation has many downvoters
+# Each user has many translations_downvoted
+
+translation_downvoters = db.Table(
+                    'translation_downvoters',
+                    db.Column('translation_id',
+                              db.Integer,
+                              db.ForeignKey('translation.id'),
+                              nullable=False),
+                    db.Column('user_id',
+                              db.Integer,
+                              db.ForeignKey('user.id'),
+                              nullable=False),
+
+                    db.PrimaryKeyConstraint('translation_id', 'user_id')
+                    )
+
+
 class Term(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     term = db.Column(db.String(150), nullable=False, unique=True)
@@ -99,6 +117,13 @@ class Translation(db.Model):
                                                   'translations_upvoted',
                                                   lazy='dynamic'),
                                )
+
+    downvoters = db.relationship('User',
+                                 secondary=translation_downvoters,
+                                 backref=db.backref(
+                                                    'translations_downvoted',
+                                                    lazy='dynamic'),
+                                 )
 
     def __repr__(self):
         return 'Translation: {}'.format(self.translation)
