@@ -19,6 +19,22 @@ translation_tags = db.Table(
                    )
 
 
+# Each translation has many upvoters(users)
+# Each user has many translations_upvoted
+translation_upvoters = db.Table(
+                   'translation_upvoters',
+                   db.Column('translation_id',
+                             db.Integer,
+                             db.ForeignKey('translation.id'),
+                             nullable=False),
+                   db.Column('user_id',
+                             db.Integer,
+                             db.ForeignKey('user.id'),
+                             nullable=False),
+
+                   db.PrimaryKeyConstraint('translation_id', 'user_id')
+                   )
+
 class Term(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     term = db.Column(db.String(150), nullable=False, unique=True)
@@ -72,7 +88,17 @@ class Translation(db.Model):
                            secondary=translation_tags,
                            backref=db.backref(
                                               'translations',
-                                              lazy='dynamic'))
+                                              lazy='dynamic'),
+                           )
+
+    # Each translation has many upvoters(users)
+    # Each user has many translations_upvoted
+    upvoters = db.relationship('User',
+                               secondary=translation_upvoters,
+                               backref=db.backref(
+                                                  'translations_upvoted',
+                                                  lazy='dynamic'),
+                               )
 
     def __repr__(self):
         return 'Translation: {}'.format(self.translation)

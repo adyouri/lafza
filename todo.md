@@ -1,3 +1,8 @@
+# Add upvoters/downvoters to models.Translation
+    translation.upvoters (User)
+    user.translations_upvoted (Translation)
+    translation.downvoters (User)
+
 # Delete translations
 # Delete terms (only admins and authors can delete terms)
 # Test non-admin cannot delete term or translations
