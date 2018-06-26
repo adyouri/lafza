@@ -244,3 +244,26 @@ class TranslationsAPI(Resource):
         # Translation was successfully added, return the term.
         result = term_schema.dump(term)
         return result.data, 201
+
+
+@api.route('/translations/<int:translation_id>/upvote',
+           endpoint='upvote_translation')
+class UpvoteTranslationAPI(Resource):
+    decorators = [auth_required]
+
+    def get(self, translation_id):
+        """ Upvote/Unupvote a translation """
+        translation = Translation.query.get(translation_id)
+
+        if current_user() in translation.upvoters:
+            # Already upvoted, unupvote translation instead
+            translation.upvoters.remove(current_user())
+            message = 'The translation was successfully unupvoted.'
+
+        else:
+            # Upvote translation
+            translation.upvoters.append(current_user())
+            message = 'The translation was successfully upvoted.'
+
+        db.session.commit()
+        return {'message': message}

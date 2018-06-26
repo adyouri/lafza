@@ -1,7 +1,9 @@
-# Add upvoters/downvoters to models.Translation
-    translation.upvoters (User)
-    user.translations_upvoted (Translation)
-    translation.downvoters (User)
+# Test /translations/<id>/upvote
+# Add /translations/<id>/downvote
+# Test /translations/<id>/downvote
+
+# If already upvoted, unupvote
+# If already downvoted, undownvote
 
 # Delete translations
 # Delete terms (only admins and authors can delete terms)
