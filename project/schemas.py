@@ -77,7 +77,11 @@ class TermSchema(ma.ModelSchema):
     # Flask-Marshmallow SQLAlchemy integration
     class Meta:
         model = Term
-    translations = ma.Nested(TranslationSchema, many=True)
+    translations = ma.Nested(TranslationSchema,
+                             many=True,
+                             exclude=('downvoters',
+                                      'upvoters'),
+                             )
 
     @pre_dump()
     def make_acronym(self, data):

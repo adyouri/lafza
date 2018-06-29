@@ -66,7 +66,11 @@ translation_schema = TranslationSchema(
                    'author_id',
                    'author',
                    'term',
-                   )
+                   ),
+
+        exclude=('downvoters',
+                 'upvoters',
+                 ),
         )
 
 # Flask-RESTplus Models for documentation

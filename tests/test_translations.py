@@ -112,3 +112,21 @@ class TestTranslations:
             assert modified_date != '2018-01-11T15:43:00+00:00'
             # Test translation author
             assert res.json['translations'][1]['author'] == 1
+
+    def test_upvote_translation(self):
+        res = self.client.get(
+                url_for('main_api.upvote_translation', translation_id=1),
+                headers={'Authorization': self.jwt_header()},
+                content_type='application/json')
+        assert res.status_code == 200
+        assert res.json['message'] == ('The translation was'
+                                       ' successfully upvoted.')
+
+        # Unupvote
+        res = self.client.get(
+                url_for('main_api.upvote_translation', translation_id=1),
+                headers={'Authorization': self.jwt_header()},
+                content_type='application/json')
+        assert res.status_code == 200
+        assert res.json['message'] == ('The translation was'
+                                       ' successfully unupvoted.')
