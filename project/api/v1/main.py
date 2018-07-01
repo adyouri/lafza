@@ -266,7 +266,7 @@ class UpvoteTranslationAPI(Resource):
 
         else:
             # Upvote translation
-            translation.upvoters.append(current_user())
+            translation.upvote(user=current_user())
             message = 'The translation was successfully upvoted.'
 
         db.session.commit()

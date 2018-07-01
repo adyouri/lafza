@@ -4,6 +4,7 @@ import json
 from flask import url_for
 import pytest
 
+from project.models import Translation
 import base
 LENGTH_ERROR = base.length_error(2, 100)
 
@@ -114,6 +115,9 @@ class TestTranslations:
             assert res.json['translations'][1]['author'] == 1
 
     def test_upvote_translation(self):
+        translation = Translation.query.get(1)
+        assert translation.score == 1
+
         res = self.client.get(
                 url_for('main_api.upvote_translation', translation_id=1),
                 headers={'Authorization': self.jwt_header()},
@@ -121,6 +125,8 @@ class TestTranslations:
         assert res.status_code == 200
         assert res.json['message'] == ('The translation was'
                                        ' successfully upvoted.')
+
+        assert translation.score == 2
 
         # Unupvote
         res = self.client.get(

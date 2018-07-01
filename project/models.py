@@ -128,6 +128,10 @@ class Translation(db.Model):
     def __repr__(self):
         return 'Translation: {}'.format(self.translation)
 
+    def upvote(self, user):
+        self.upvoters.append(user)
+        self.score += 1
+
 
 class User(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
