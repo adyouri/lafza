@@ -136,3 +136,4 @@ class TestTranslations:
         assert res.status_code == 200
         assert res.json['message'] == ('The translation was'
                                        ' successfully unupvoted.')
+        assert translation.score == 1

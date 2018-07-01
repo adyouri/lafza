@@ -132,6 +132,21 @@ class Translation(db.Model):
         self.upvoters.append(user)
         self.score += 1
 
+    def unupvote(self, user):
+        self.upvoters.remove(user)
+        self.score -= 1
+
+    def downvote(self, user):
+        self.downvoters.append(user)
+        self.score -= 1
+
+    def undownvote(self, user):
+        self.downvoters.remove(user)
+        self.score += 1
+
+    # NOTE: Should probably just set a score property that returns
+    # Upvoters count - Downvoters count
+
 
 class User(db.Model):
     id = db.Column(db.Integer(), primary_key=True)

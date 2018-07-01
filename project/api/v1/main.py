@@ -261,13 +261,39 @@ class UpvoteTranslationAPI(Resource):
 
         if current_user() in translation.upvoters:
             # Already upvoted, unupvote translation instead
-            translation.upvoters.remove(current_user())
+            translation.unupvote(user=current_user())
+            # translation.upvoters.remove(current_user())
+            # translation.score -= 1
             message = 'The translation was successfully unupvoted.'
 
         else:
             # Upvote translation
             translation.upvote(user=current_user())
             message = 'The translation was successfully upvoted.'
+
+        db.session.commit()
+        return {'message': message}
+
+
+@api.route('/translations/<int:translation_id>/downvote',
+           endpoint='downvote_translation')
+class DownvoteTranslationAPI(Resource):
+    decorators = [auth_required]
+
+    def get(self, translation_id):
+        """ Downvote/Undownvote a translation """
+        translation = Translation.query.get(translation_id)
+
+        if current_user() in translation.downvoters:
+            # Already downvoted, undownvote translation instead
+            translation.downvoters.remove(current_user())
+            translation.score += 1
+            message = 'The translation was successfully undownvoted.'
+
+        else:
+            # Downvote translation
+            translation.downvote(user=current_user())
+            message = 'The translation was successfully downvoted.'
 
         db.session.commit()
         return {'message': message}

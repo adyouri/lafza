@@ -1,3 +1,6 @@
+# Test Unupvoting resets the score to 1
+
+
 # Add /translations/<id>/downvote
 # Test /translations/<id>/downvote
 
