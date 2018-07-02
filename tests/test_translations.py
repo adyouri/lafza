@@ -137,3 +137,27 @@ class TestTranslations:
         assert res.json['message'] == ('The translation was'
                                        ' successfully unupvoted.')
         assert translation.score == 1
+
+    def test_downvote_translation(self):
+        translation = Translation.query.get(1)
+        assert translation.score == 1
+
+        res = self.client.get(
+                url_for('main_api.downvote_translation', translation_id=1),
+                headers={'Authorization': self.jwt_header()},
+                content_type='application/json')
+        assert res.status_code == 200
+        assert res.json['message'] == ('The translation was'
+                                       ' successfully downvoted.')
+
+        assert translation.score == 0
+
+        # Undownvote
+        res = self.client.get(
+                url_for('main_api.downvote_translation', translation_id=1),
+                headers={'Authorization': self.jwt_header()},
+                content_type='application/json')
+        assert res.status_code == 200
+        assert res.json['message'] == ('The translation was'
+                                       ' successfully undownvoted.')
+        assert translation.score == 1

@@ -1,14 +1,3 @@
-# Test Unupvoting resets the score to 1
-
-
-# Add /translations/<id>/downvote
-# Test /translations/<id>/downvote
-
-# If already upvoted, unupvote
-# If already downvoted, undownvote
-
-# Move upvote()/downvote() to `models.Translation`
-# Update score when upvoted/downvoted
 
 # Delete translations
 # Delete terms (only admins and authors can delete terms)
