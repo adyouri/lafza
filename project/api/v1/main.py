@@ -10,7 +10,11 @@ import project.core.translation_utils as translation_utils
 from .users import api as users_api
 
 from flask_praetorian.exceptions import PraetorianError
-from flask_praetorian import auth_required, current_user, roles_required
+from flask_praetorian import (
+        auth_required,
+        current_user,
+        roles_required,
+        )
 
 main_api = Blueprint('main_api', __name__)
 
@@ -159,14 +163,23 @@ class TermAPI(Resource):
 
 
 @api.route('/terms/<string:term>', endpoint='delete_term')
-class DeleteTermAPI(Resource):
-    decorators = [auth_required, roles_required('admin')]
+class DeleteTermAPI(TermsAPI):
+    decorators = [auth_required]
 
     def delete(self, term):
         """ Delete a term """
         term = Term.query.filter_by(term=term.lower()).first_or_404()
-        db.session.delete(term)
-        db.session.commit()
+
+        user = current_user()
+
+        if user != term.author and 'admin' not in user.rolenames:
+            return {'message':
+                    'Deleting requires to be the author or an admin'}, 401
+
+        if user == term.author or 'admin' in user.rolenames:
+            db.session.delete(term)
+            db.session.commit()
+
         return {'message': 'The term was successfully deleted.'}
 
 
@@ -262,8 +275,6 @@ class UpvoteTranslationAPI(Resource):
         if current_user() in translation.upvoters:
             # Already upvoted, unupvote translation instead
             translation.unupvote(user=current_user())
-            # translation.upvoters.remove(current_user())
-            # translation.score -= 1
             message = 'The translation was successfully unupvoted.'
 
         else:

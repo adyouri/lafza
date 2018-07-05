@@ -1,8 +1,9 @@
-
-# Delete translations
 # Delete terms (only admins and authors can delete terms)
 # Test non-admin and non-author cannot delete term or translations
+# Test author can delete term
+# Test admin can delete term
 # Test delete terms
+# Delete translations
 # Test delete translations
 
 # Limit access to /register using flask-limiter
