@@ -44,8 +44,8 @@ def login(username, password, client):
 
 @pytest.mark.usefixtures('client_class')
 class TestUsers:
-    def jwt_header(self):
-        jwt = base.valid_jwt_token(client=self.client)
+    def jwt_header(self, username='test'):
+        jwt = base.valid_jwt_token(client=self.client, username=username)
         return jwt
 
     def test_register(self):

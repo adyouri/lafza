@@ -1,4 +1,9 @@
-# Delete terms (only admins and authors can delete terms)
+# Refactor jwt_header to accept username and password
+# Test `test` cannot delete any term
+# Test `author` can delete `author_term` but not `term`
+# Test `admin` can delete both terms
+
+
 # Test non-admin and non-author cannot delete term or translations
 # Test author can delete term
 # Test admin can delete term

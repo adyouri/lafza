@@ -13,18 +13,20 @@ def length_error(_min, _max):
     return f'Length must be between {_min} and {_max}.'
 
 
-def valid_jwt_token(client):
+def valid_jwt_token(client, username):
     """
     Return a valid JWT token to use with routes that require authentication.
 
     :param client: test client for sending a POST request to /api/v1/login.
+    :param username: username for which the JWT token is needed
+                     note that the password is the same for all test users
     :returns: A JWT token.
     """
     # User JSON data
     # This user was added to the database in conftest.py
     user_data = json.dumps(
             dict(
-                username='test',
+                username=username,
                 password='secret',
                 )
             )

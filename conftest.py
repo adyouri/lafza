@@ -33,9 +33,27 @@ def app():
     term.translations.append(translation)
     # Create a new user
     user = User(username='test', password='secret', email='usr@example.com')
-    # Add term and user, this also adds the translation to the session
+
+    # Create an author
+    author = User(username='author',
+                  password='secret',
+                  email='author@example.com')
+    # Create an admin user
+    admin = User(username='admin',
+                 password='secret',
+                 roles='admin,user',
+                 email='admin@example.com')
+    # Create a term and assign it to author
+    author_term = Term(term='author_term')
+    author_term.author = author
+    # Add terms and users, this also adds the translation to the session
     db.session.add(term)
     db.session.add(user)
+
+    db.session.add(admin)
+    db.session.add(author_term)
+
+
     db.session.commit()
 
     # Yield the app object

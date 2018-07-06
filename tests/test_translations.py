@@ -11,8 +11,8 @@ LENGTH_ERROR = base.length_error(2, 100)
 
 @pytest.mark.usefixtures('client_class')
 class TestTranslations:
-    def jwt_header(self):
-        jwt = base.valid_jwt_token(client=self.client)
+    def jwt_header(self, username='test'):
+        jwt = base.valid_jwt_token(client=self.client, username=username)
         return jwt
 
     def test_get_translations(self):
