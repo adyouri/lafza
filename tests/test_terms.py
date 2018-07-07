@@ -112,7 +112,7 @@ class TestTerms:
                     is_acronym=is_acronym,
                     full_term=full_term,
                     ))
-        # Get JWT header
+
         res = self.client.post(url_for('main_api.terms'),
                                data=term_data,
                                content_type='application/json',
@@ -123,3 +123,53 @@ class TestTerms:
         if res.status_code == 201:
             # Test term author
             assert res.json['author'] == 1
+
+    @pytest.mark.parametrize('term, user, status_code, message', [
+
+        # The user "test" is not an author nor an admin
+        ('term',
+         'test',
+         401,
+         'Deleting requires to be the author or an admin'
+         ),
+
+        ('author_term',
+         'test',
+         401,
+         'Deleting requires to be the author or an admin'
+         ),
+
+        # "term" has no author
+        ('term',
+         'author',
+         401,
+         'Deleting requires to be the author or an admin'
+         ),
+
+        # "author_term" blongs to the user "author"
+        ('author_term',
+         'author',
+         200,
+         'The term was successfully deleted.'
+         ),
+
+        # The admin user "admin" doesn't care who added the term
+        ('author_term',
+         'admin',
+         200,
+         'The term was successfully deleted.'
+         ),
+
+        ('term',
+         'admin',
+         200,
+         'The term was successfully deleted.'
+         ),
+    ])
+    def test_delete_term(self, term, user, status_code, message):
+        res = self.client.delete(
+                url_for('main_api.delete_term', term=term),
+                headers={'Authorization': self.jwt_header(user)},
+                )
+        assert res.status_code == status_code
+        assert res.json['message'] == message
