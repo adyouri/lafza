@@ -161,3 +161,60 @@ class TestTranslations:
         assert res.json['message'] == ('The translation was'
                                        ' successfully undownvoted.')
         assert translation.score == 1
+
+    @pytest.mark.parametrize('translation_id, user, status_code, message', [
+
+        # The user "test" is not an author nor an admin
+        # 1 == "translation"
+        (1,
+         'test',
+         401,
+         'Deleting requires to be the author or an admin'
+         ),
+
+        # "author_translation"
+        (2,
+         'test',
+         401,
+         'Deleting requires to be the author or an admin'
+         ),
+
+        # "translation" has no author
+        (1,
+         'author',
+         401,
+         'Deleting requires to be the author or an admin'
+         ),
+
+        # "author_translation" blongs to the user "author"
+        (2,
+         'author',
+         200,
+         'The translation was successfully deleted.'
+         ),
+
+        # The admin user "admin" doesn't care who added the translation
+        (1,
+         'admin',
+         200,
+         'The translation was successfully deleted.'
+         ),
+
+        (2,
+         'admin',
+         200,
+         'The translation was successfully deleted.'
+         ),
+    ])
+    def test_delete_translation(self,
+                                translation_id,
+                                user,
+                                status_code,
+                                message):
+        res = self.client.delete(
+                url_for('main_api.delete_translation',
+                        translation_id=translation_id),
+                headers={'Authorization': self.jwt_header(user)},
+                )
+        assert res.status_code == status_code
+        assert res.json['message'] == message

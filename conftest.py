@@ -7,12 +7,13 @@ from project.models import db, Term, Translation, User
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
+
 @pytest.fixture
 def app():
     app = create_app('../testing_config.cfg')
     # Push the application context for the db object to work properly
     app.app_context().push()
-    # Rollback all previous session changes from the last test run
+    # Rollback all previous session changes from the last ran tests
     db.session.rollback()
     # Delete all the tables
     db.drop_all()
@@ -43,20 +44,26 @@ def app():
                  password='secret',
                  roles='admin,user',
                  email='admin@example.com')
-    # Create a term and assign it to author
+
+    # Create a term and assign it to "author"
     author_term = Term(term='author_term')
     author_term.author = author
+
     # Add terms and users, this also adds the translation to the session
     db.session.add(term)
     db.session.add(user)
-
     db.session.add(admin)
     db.session.add(author_term)
 
+    # Create a translation and assign it to "author"
+    author_translation = Translation(translation='author_translation')
+    author_translation.author = author
+    author_translation.term = author_term
+    db.session.add(author_translation)
 
     db.session.commit()
 
-    # Yield the app object
+    # All the code after the yield statement serves as the teardown code
     yield app
 
     # DB Teardown
