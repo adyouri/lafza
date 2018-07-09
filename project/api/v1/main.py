@@ -13,7 +13,6 @@ from flask_praetorian.exceptions import PraetorianError
 from flask_praetorian import (
         auth_required,
         current_user,
-        roles_required,
         )
 
 main_api = Blueprint('main_api', __name__)
@@ -186,13 +185,22 @@ class DeleteTermAPI(TermsAPI):
 @api.route('/translations/<int:translation_id>',
            endpoint='delete_translation')
 class DeleteTranslationAPI(Resource):
+    # TODO
     decorators = [auth_required]
 
     def delete(self, translation_id):
         """ Delete a translation """
-        translation = Translation.query.get(translation_id)
-        db.session.delete(translation)
-        db.session.commit()
+        translation = Translation.query.get_or_404(translation_id)
+        user = current_user()
+
+        if user != translation.author and 'admin' not in user.rolenames:
+            return {'message':
+                    'Deleting requires to be the author or an admin'}, 401
+
+        if user == translation.author or 'admin' in user.rolenames:
+            db.session.delete(translation)
+            db.session.commit()
+
         return {'message': 'The translation was successfully deleted.'}
 
 
