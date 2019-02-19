@@ -1,4 +1,4 @@
-# Mofradah
+# لفظة
 An open dictionary web application.
 
 ---
